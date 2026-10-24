@@ -58,7 +58,109 @@ export const StudentLayout: React.FC = () => {
       >
         {/* Brand Header */}
         <div className="h-20 flex items-center justify-between px-5 border-b border-slate-800/80 bg-[#080d18]">
-          
+          {!isCollapsed && (
+            <div
+              onClick={() => navigate('/hoc/khoahoc')}
+              className="flex items-center gap-3 cursor-pointer group"
+            >
+              <div className="w-10 h-10 rounded-xl bg-amber-400 flex items-center justify-center text-slate-900 shadow-lg shadow-amber-400/20 group-hover:scale-105 transition-transform">
+                <Car className="w-6 h-6 stroke-[2.5]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-heading font-black text-sm text-white tracking-wider flex items-center gap-1.5">
+                  LMS LÁI XE
+                  <span className="px-1.5 py-0.5 rounded text-[9px] bg-amber-400/20 text-amber-300 font-bold border border-amber-400/30">
+                    HỌC VIÊN
+                  </span>
+                </span>
+                <span className="text-[10px] text-amber-400 font-bold tracking-wider uppercase">
+                  Cổng Học Trực Tuyến
+                </span>
+              </div>
+            </div>
+          )}
+
+          {isCollapsed && (
+            <div
+              onClick={() => navigate('/hoc/khoahoc')}
+              className="w-full flex justify-center cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-xl bg-amber-400 flex items-center justify-center text-slate-900 shadow-md">
+                <Car className="w-6 h-6 stroke-[2.5]" />
+              </div>
+            </div>
+          )}
+
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            title={isCollapsed ? 'Mở rộng Menu' : 'Thu gọn Menu'}
+            className={`p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer ${
+              isCollapsed ? 'hidden' : 'block'
+            }`}
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Navigation Items (Chỉ 2 Menu: Khóa học của tôi & Thông tin tài khoản) */}
+        <div className="flex-1 overflow-y-auto py-6 px-3.5 space-y-2 scrollbar-thin">
+          {isCollapsed && (
+            <div className="flex justify-center mb-4">
+              <button
+                onClick={() => setIsCollapsed(false)}
+                title="Mở rộng menu"
+                className="p-2.5 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all cursor-pointer"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+            </div>
+          )}
+
+          {/* Menu 1: Khóa học của tôi */}
+          <button
+            onClick={() => navigate('/hoc/khoahoc')}
+            className={`w-full flex items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-medium text-sm transition-all cursor-pointer ${
+              isCoursesActive
+                ? 'bg-amber-400 text-slate-950 font-bold shadow-lg shadow-amber-400/20'
+                : 'text-slate-300 hover:bg-white/10 hover:text-white'
+            }`}
+            title="Khóa học của tôi"
+          >
+            <BookOpen className="w-5 h-5 shrink-0" />
+            {!isCollapsed && (
+              <div className="flex-1 text-left flex items-center justify-between">
+                <span>Khóa học của tôi</span>
+                <span
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    isCoursesActive
+                      ? 'bg-slate-900 text-amber-300'
+                      : 'bg-white/10 text-slate-300'
+                  }`}
+                >
+                  LMS
+                </span>
+              </div>
+            )}
+          </button>
+
+          {/* Menu 2: Thông tin tài khoản */}
+          <button
+            onClick={() => navigate('/hoc/taikhoan')}
+            className={`w-full flex items-center gap-3.5 px-3.5 py-3.5 rounded-xl font-medium text-sm transition-all cursor-pointer ${
+              isAccountActive
+                ? 'bg-amber-400 text-slate-950 font-bold shadow-lg shadow-amber-400/20'
+                : 'text-slate-300 hover:bg-white/10 hover:text-white'
+            }`}
+            title="Thông tin tài khoản"
+          >
+            <UserCheck className="w-5 h-5 shrink-0" />
+            {!isCollapsed && (
+              <div className="flex-1 text-left flex items-center justify-between">
+                <span>Thông tin tài khoản</span>
+                <ShieldCheck className="w-4 h-4 opacity-70" />
+              </div>
+            )}
+          </button>
         </div>
 
         {/* User Card & Logout Bottom */}
