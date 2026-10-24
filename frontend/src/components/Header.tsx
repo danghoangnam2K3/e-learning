@@ -1,3 +1,4 @@
+import { AvatarImage } from './AvatarImage';
 import { getMediaUrl } from '../services/api';
 import React, { useState, useRef, useEffect } from 'react';
 import { AuthUser } from '../types';
@@ -192,17 +193,16 @@ export const Header: React.FC<HeaderProps> = (props) => {
             onClick={() => setIsProfileOpen(!isProfileOpen)}
             className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer text-left"
           >
-            {user?.avatarUrl ? (
-              <img
-                src={getMediaUrl(user.avatarUrl)}
-                alt={user.hoVaTen}
-                className="w-10 h-10 rounded-full object-cover border-2 border-amber-400 shadow-md"
-              />
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#042954] to-indigo-700 flex items-center justify-center text-white font-bold text-sm shadow-md">
-                {user?.hoVaTen ? user.hoVaTen.charAt(0).toUpperCase() : 'A'}
-              </div>
-            )}
+            <AvatarImage
+              src={user?.avatarUrl}
+              alt={user?.hoVaTen}
+              className="w-10 h-10 rounded-full object-cover border-2 border-amber-400 shadow-md"
+              fallback={
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#042954] to-indigo-700 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                  {user?.hoVaTen ? user.hoVaTen.charAt(0).toUpperCase() : 'A'}
+                </div>
+              }
+            />
             <div className="hidden md:block">
               <div className="font-bold text-xs text-slate-800 leading-tight">
                 {user?.hoVaTen || user?.tenDangNhap || 'Tài khoản'}

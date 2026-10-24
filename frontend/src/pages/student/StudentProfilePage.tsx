@@ -1,3 +1,4 @@
+import { AvatarImage } from '../../components/AvatarImage';
 import React, { useState, useEffect, useRef } from 'react';
 import { api, getMediaUrl } from '../../services/api';
 import { StudentProfileResponse } from '../../types';
@@ -172,18 +173,17 @@ export const StudentProfilePage: React.FC = () => {
               onClick={() => fileInputRef.current?.click()}
               title="Bấm để đổi ảnh đại diện học viên"
             >
-              {(user?.avatarUrl || thongTinCaNhan.avatarUrl) ? (
-                <img
-                  src={getMediaUrl(user?.avatarUrl || thongTinCaNhan.avatarUrl)}
-                  alt={thongTinCaNhan.hoVaTen}
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl object-cover border-2 border-amber-400 shadow-lg shadow-amber-400/20 transition-all group-hover:brightness-75"
-                />
-              ) : (
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 font-black text-2xl flex items-center justify-center shadow-lg shadow-amber-400/20 transition-all group-hover:brightness-75">
-                  {thongTinCaNhan.hoVaTen ? thongTinCaNhan.hoVaTen.charAt(0).toUpperCase() : 'H'}
-                </div>
-              )}
-              <div className="absolute inset-0 rounded-3xl flex flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
+              <AvatarImage
+                src={user?.avatarUrl || thongTinCaNhan.avatarUrl}
+                alt={thongTinCaNhan.hoVaTen}
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl object-cover border-2 border-amber-400 shadow-lg shadow-amber-400/20 transition-all group-hover:brightness-75"
+                fallback={
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 font-black text-2xl flex items-center justify-center shadow-lg shadow-amber-400/20 transition-all group-hover:brightness-75">
+                    {thongTinCaNhan.hoVaTen ? thongTinCaNhan.hoVaTen.charAt(0).toUpperCase() : 'H'}
+                  </div>
+                }
+              />
+              <div className="absolute inset-0 rounded-3xl flex flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 pointer-events-none">
                 {uploadingAvatar ? (
                   <Loader2 className="w-6 h-6 animate-spin text-amber-400" />
                 ) : (

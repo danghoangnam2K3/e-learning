@@ -1,3 +1,4 @@
+import { AvatarImage } from './AvatarImage';
 import React, { useState, useRef } from 'react';
 import { AuthUser } from '../types';
 import { api, getMediaUrl } from '../services/api';
@@ -85,18 +86,17 @@ export const AccountInfoModal: React.FC<AccountInfoModalProps> = ({
         {/* User Profile Card with Avatar Upload */}
         <div className="flex items-center gap-4 p-4 rounded-2xl bg-amber-50/60 border border-amber-200/60">
           <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-            {user.avatarUrl ? (
-              <img
-                src={getMediaUrl(user.avatarUrl)}
-                alt={user.hoVaTen}
-                className="w-16 h-16 rounded-2xl object-cover border-2 border-amber-400 shadow-md transition-all group-hover:brightness-75"
-              />
-            ) : (
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#042954] to-indigo-700 text-white font-black text-2xl flex items-center justify-center shadow-md transition-all group-hover:brightness-75">
-                {user.hoVaTen ? user.hoVaTen.charAt(0).toUpperCase() : 'A'}
-              </div>
-            )}
-            <div className="absolute inset-0 rounded-2xl flex flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
+            <AvatarImage
+              src={user.avatarUrl}
+              alt={user.hoVaTen}
+              className="w-16 h-16 rounded-2xl object-cover border-2 border-amber-400 shadow-md transition-all group-hover:brightness-75"
+              fallback={
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#042954] to-indigo-700 text-white font-black text-2xl flex items-center justify-center shadow-md transition-all group-hover:brightness-75">
+                  {user.hoVaTen ? user.hoVaTen.charAt(0).toUpperCase() : 'A'}
+                </div>
+              }
+            />
+            <div className="absolute inset-0 rounded-2xl flex flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 pointer-events-none">
               {uploading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (

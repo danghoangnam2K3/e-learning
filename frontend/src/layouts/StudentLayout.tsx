@@ -1,3 +1,4 @@
+import { AvatarImage } from '../components/AvatarImage';
 import { getMediaUrl } from '../services/api';
 import React, { useState, Suspense } from 'react';
 import { Outlet, Navigate, useLocation, useNavigate } from 'react-router-dom';
@@ -173,17 +174,16 @@ export const StudentLayout: React.FC = () => {
           >
             {!isCollapsed && (
               <div className="flex items-center gap-2.5 overflow-hidden">
-                {user.avatarUrl ? (
-                  <img
-                    src={getMediaUrl(user.avatarUrl)}
-                    alt={user.hoVaTen}
-                    className="w-9 h-9 rounded-xl object-cover border border-amber-400 shadow-sm shrink-0"
-                  />
-                ) : (
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-950 font-black text-sm shrink-0 shadow-sm">
-                    {user.hoVaTen ? user.hoVaTen.charAt(0).toUpperCase() : 'H'}
-                  </div>
-                )}
+                <AvatarImage
+                  src={user.avatarUrl}
+                  alt={user.hoVaTen}
+                  className="w-9 h-9 rounded-xl object-cover border border-amber-400 shadow-sm shrink-0"
+                  fallback={
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-950 font-black text-sm shrink-0 shadow-sm">
+                      {user.hoVaTen ? user.hoVaTen.charAt(0).toUpperCase() : 'H'}
+                    </div>
+                  }
+                />
                 <div className="flex flex-col min-w-0">
                   <span className="text-xs font-bold text-white truncate">
                     {user.hoVaTen || user.tenDangNhap}
@@ -235,17 +235,16 @@ export const StudentLayout: React.FC = () => {
               onClick={() => navigate('/hoc/taikhoan')}
               className="flex items-center gap-3 p-1.5 pr-3 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-200 cursor-pointer transition-all"
             >
-              {user.avatarUrl ? (
-                <img
-                  src={getMediaUrl(user.avatarUrl)}
-                  alt={user.hoVaTen}
-                  className="w-9 h-9 rounded-xl object-cover border border-amber-400 shadow-sm shrink-0"
-                />
-              ) : (
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-400 to-amber-200 flex items-center justify-center font-bold text-slate-900 text-sm shadow-sm shrink-0">
-                  {user.hoVaTen ? user.hoVaTen.charAt(0).toUpperCase() : 'H'}
-                </div>
-              )}
+              <AvatarImage
+                src={user.avatarUrl}
+                alt={user.hoVaTen}
+                className="w-9 h-9 rounded-xl object-cover border border-amber-400 shadow-sm shrink-0"
+                fallback={
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-400 to-amber-200 flex items-center justify-center font-bold text-slate-900 text-sm shadow-sm shrink-0">
+                    {user.hoVaTen ? user.hoVaTen.charAt(0).toUpperCase() : 'H'}
+                  </div>
+                }
+              />
               <div className="hidden sm:flex flex-col text-left">
                 <span className="text-xs font-bold text-slate-800">
                   {user.hoVaTen || user.tenDangNhap}

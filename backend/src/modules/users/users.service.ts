@@ -19,7 +19,7 @@ export class UsersService implements OnModuleInit {
     await this.ensureAvatarUrlColumn();
   }
 
-  // Đảm bảo cột AvatarUrl đã tồn tại trong bảng dbo.NguoiDung
+  // Đảm bảo cột AvatarUrl đã tồn tại và hỗ trợ Base64 (NVARCHAR(MAX))
   private async ensureAvatarUrlColumn() {
     try {
       await this.dataSource.query(`
@@ -28,9 +28,37 @@ export class UsersService implements OnModuleInit {
           WHERE object_id = OBJECT_ID(N'dbo.NguoiDung') AND name = N'AvatarUrl'
         )
         BEGIN
-          ALTER TABLE dbo.NguoiDung ADD AvatarUrl NVARCHAR(500) NULL;
+          ALTER TABLE dbo.NguoiDung ADD AvatarUrl NVARCHAR(MAX) NULL;
+        END
+        ELSE
+        BEGIN
+          ALTER TABLE dbo.NguoiDung ALTER COLUMN AvatarUrl NVARCHAR(MAX) NULL;
         END
       `);
+
+      // Tự động chuyển đổi các avatar dạng file path (/uploads/avatars/...) sang Base64 Data URL
+      const usersWithFilePath = await this.dataSource.query(`
+        SELECT MaNguoiDung, AvatarUrl FROM dbo.NguoiDung 
+        WHERE AvatarUrl LIKE '/uploads/avatars/%' AND DaXoa = 0
+      `);
+      if (Array.isArray(usersWithFilePath) && usersWithFilePath.length > 0) {
+        for (const u of usersWithFilePath) {
+          const localPath = path.join(process.cwd(), u.AvatarUrl);
+          if (fs.existsSync(localPath)) {
+            try {
+              const fileBuf = fs.readFileSync(localPath);
+              const b64 = `data:image/jpeg;base64,${fileBuf.toString('base64')}`;
+              await this.dataSource.query(
+                `UPDATE dbo.NguoiDung SET AvatarUrl = @0 WHERE MaNguoiDung = @1`,
+                [b64, u.MaNguoiDung],
+              );
+              this.logger.log(`Đã tự động chuyển Avatar của tài khoản #${u.MaNguoiDung} sang định dạng Base64 Data URL`);
+            } catch (convErr: any) {
+              this.logger.warn(`Không thể đọc file avatar cho #${u.MaNguoiDung}: ${convErr.message}`);
+            }
+          }
+        }
+      }
     } catch (err: any) {
       this.logger.warn(`ensureAvatarUrlColumn: ${err.message}`);
     }
@@ -293,14 +321,19 @@ export class UsersService implements OnModuleInit {
     const oldAvatarUrl = user?.[0]?.AvatarUrl;
 
     try {
-      // 5. Tối ưu và lưu file vật lý bằng Sharp (chuẩn hóa kích thước tối đa 500x500)
-      await sharp(file.buffer)
-        .resize(500, 500, { fit: 'cover', withoutEnlargement: true })
-        .jpeg({ quality: 90 })
-        .toFile(targetPath);
+      // 5. Tối ưu và lưu file vật lý bằng Sharp (chuẩn hóa 300x300, JPEG chất lượng cao tối ưu dung lượng)
+      const outputBuffer = await sharp(file.buffer)
+        .resize(300, 300, { fit: 'cover', withoutEnlargement: true })
+        .jpeg({ quality: 85 })
+        .toBuffer();
 
-      // 6. Cập nhật đường dẫn trong CSDL
-      const newAvatarUrl = `/uploads/avatars/${fileName}`;
+      // Lưu file vật lý làm backup
+      await fs.promises.writeFile(targetPath, outputBuffer);
+
+      // Tạo Data URL Base64 để hiển thị NGAY LẬP TỨC 100% trên mọi môi trường (Vercel, ngrok, localhost)
+      const newAvatarUrl = `data:image/jpeg;base64,${outputBuffer.toString('base64')}`;
+
+      // 6. Cập nhật đường dẫn trong CSDL (cột NVARCHAR(MAX))
       await this.dataSource.query(
         `UPDATE dbo.NguoiDung 
          SET AvatarUrl = @0, NgayCapNhat = GETDATE() 
