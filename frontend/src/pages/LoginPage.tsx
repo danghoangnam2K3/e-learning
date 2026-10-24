@@ -3,38 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   Car,
-  ShieldCheck,
-  GraduationCap,
-  UserCheck,
   ArrowRight,
 } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
-  const { login, quickLogin, loginLoading, loginError } = useAuth();
+  const { login, loginLoading, loginError } = useAuth();
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('Admin@123456');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const user = await login(username, password);
-      if (user.maVaiTro === 'STUDENT') {
-        navigate('/hoc');
-      } else {
-        navigate('/');
-      }
-    } catch {
-      // Handled in context
-    }
-  };
-
-  const handleQuick = async (uname: string) => {
-    setUsername(uname);
-    setPassword('Admin@123456');
-    try {
-      const user = await quickLogin(uname);
       if (user.maVaiTro === 'STUDENT') {
         navigate('/hoc');
       } else {
@@ -87,7 +69,7 @@ export const LoginPage: React.FC = () => {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="admin"
+                placeholder="Nhập tên đăng nhập..."
                 className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-amber-400 focus:bg-white transition-colors"
               />
             </div>
@@ -121,39 +103,6 @@ export const LoginPage: React.FC = () => {
               )}
             </button>
           </form>
-
-          {/* Quick Demo Test Accounts */}
-          <div className="pt-4 border-t border-slate-100 space-y-2">
-            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center">
-              Đăng nhập nhanh tài khoản mẫu:
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuick('admin')}
-                className="p-2.5 rounded-xl bg-slate-50 hover:bg-amber-50 border border-slate-200 text-[11px] text-slate-700 font-bold transition-colors cursor-pointer text-center flex flex-col items-center gap-1"
-              >
-                <ShieldCheck className="w-4 h-4 text-rose-500" />
-                <span>Admin</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuick('gv_nguyenvana')}
-                className="p-2.5 rounded-xl bg-slate-50 hover:bg-blue-50 border border-slate-200 text-[11px] text-slate-700 font-bold transition-colors cursor-pointer text-center flex flex-col items-center gap-1"
-              >
-                <UserCheck className="w-4 h-4 text-blue-500" />
-                <span>Giáo viên</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuick('hv_lequangc')}
-                className="p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-200 text-[11px] text-slate-700 font-bold transition-colors cursor-pointer text-center flex flex-col items-center gap-1"
-              >
-                <GraduationCap className="w-4 h-4 text-emerald-500" />
-                <span>Học viên</span>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>
