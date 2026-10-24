@@ -1,3 +1,4 @@
+import { getMediaUrl } from '../services/api';
 import React, { useState, useEffect } from 'react';
 import {api } from '../services/api';
 import { UserItem, PaginationMeta } from '../types';
@@ -542,7 +543,7 @@ export const UserManagement: React.FC = () => {
                         <div className="relative group/avatar shrink-0" title="Admin: Nhấn vào biểu tượng camera để đổi ảnh đại diện">
   {u.AvatarUrl ? (
     <img
-      src={u.AvatarUrl}
+      src={getMediaUrl(u.AvatarUrl)}
       alt={u.HoVaTen}
       className="w-10 h-10 rounded-xl object-cover shrink-0 border border-slate-200 group-hover/avatar:ring-2 group-hover/avatar:ring-amber-400 transition-all shadow-xs"
     />
@@ -801,7 +802,7 @@ export const UserManagement: React.FC = () => {
                   <div className="relative shrink-0">
                     {editingUser.AvatarUrl ? (
                       <img
-                        src={editingUser.AvatarUrl}
+                        src={getMediaUrl(editingUser.AvatarUrl)}
                         alt={editingUser.HoVaTen}
                         className="w-14 h-14 rounded-2xl object-cover border-2 border-amber-400 shadow-sm"
                       />

@@ -1,3 +1,4 @@
+import { getMediaUrl } from '../services/api';
 import React, { useState, Suspense } from 'react';
 import { Outlet, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -174,7 +175,7 @@ export const StudentLayout: React.FC = () => {
               <div className="flex items-center gap-2.5 overflow-hidden">
                 {user.avatarUrl ? (
                   <img
-                    src={user.avatarUrl}
+                    src={getMediaUrl(user.avatarUrl)}
                     alt={user.hoVaTen}
                     className="w-9 h-9 rounded-xl object-cover border border-amber-400 shadow-sm shrink-0"
                   />
@@ -236,7 +237,7 @@ export const StudentLayout: React.FC = () => {
             >
               {user.avatarUrl ? (
                 <img
-                  src={user.avatarUrl}
+                  src={getMediaUrl(user.avatarUrl)}
                   alt={user.hoVaTen}
                   className="w-9 h-9 rounded-xl object-cover border border-amber-400 shadow-sm shrink-0"
                 />

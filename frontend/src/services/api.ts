@@ -20,6 +20,36 @@ import { clientCache } from './cache';
 
 const BASE_URL = (import.meta.env.VITE_API_URL as string) || '/api/v1';
 
+export function getMediaUrl(path?: string | null): string {
+  if (!path) return '';
+  if (path.startsWith('data:')) return path;
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    if (path.includes('ngrok') && !path.includes('ngrok-skip-browser-warning')) {
+      const sep = path.includes('?') ? '&' : '?';
+      return `${path}${sep}ngrok-skip-browser-warning=true`;
+    }
+    return path;
+  }
+
+  const envUrl = (import.meta.env.VITE_API_URL as string) || '';
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+
+  if (envUrl.startsWith('http://') || envUrl.startsWith('https://')) {
+    try {
+      const parsed = new URL(envUrl);
+      let fullUrl = `${parsed.origin}${cleanPath}`;
+      if (fullUrl.includes('ngrok') && !fullUrl.includes('ngrok-skip-browser-warning')) {
+        const sep = fullUrl.includes('?') ? '&' : '?';
+        fullUrl = `${fullUrl}${sep}ngrok-skip-browser-warning=true`;
+      }
+      return fullUrl;
+    } catch {}
+  }
+
+  return cleanPath;
+}
+
+
 class ApiService {
   private token: string | null = null;
 
@@ -43,6 +73,10 @@ class ApiService {
 
   getToken(): string | null {
     return this.token;
+  }
+
+  getMediaUrl(path?: string | null): string {
+    return getMediaUrl(path);
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {

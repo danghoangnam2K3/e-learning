@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { api } from '../../services/api';
+import { api, getMediaUrl } from '../../services/api';
 import { StudentProfileResponse } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -174,7 +174,7 @@ export const StudentProfilePage: React.FC = () => {
             >
               {(user?.avatarUrl || thongTinCaNhan.avatarUrl) ? (
                 <img
-                  src={user?.avatarUrl || thongTinCaNhan.avatarUrl || ''}
+                  src={getMediaUrl(user?.avatarUrl || thongTinCaNhan.avatarUrl)}
                   alt={thongTinCaNhan.hoVaTen}
                   className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl object-cover border-2 border-amber-400 shadow-lg shadow-amber-400/20 transition-all group-hover:brightness-75"
                 />

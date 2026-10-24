@@ -1,3 +1,4 @@
+import { getMediaUrl } from '../services/api';
 import React, { useState, useRef, useEffect } from 'react';
 import { AuthUser } from '../types';
 import {
@@ -193,7 +194,7 @@ export const Header: React.FC<HeaderProps> = (props) => {
           >
             {user?.avatarUrl ? (
               <img
-                src={user.avatarUrl}
+                src={getMediaUrl(user.avatarUrl)}
                 alt={user.hoVaTen}
                 className="w-10 h-10 rounded-full object-cover border-2 border-amber-400 shadow-md"
               />

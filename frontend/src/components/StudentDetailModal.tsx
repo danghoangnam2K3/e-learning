@@ -1,3 +1,4 @@
+import { getMediaUrl } from '../services/api';
 import React, { useState, useEffect } from 'react';
 import {api } from '../services/api';
 import {
@@ -107,7 +108,7 @@ export const StudentDetailModal: React.FC<StudentDetailModalProps> = ({
             <div className="relative group/modalAvatar shrink-0" title="Admin: Nhấn để đổi ảnh đại diện cho học viên này">
             {tongQuan?.AvatarUrl ? (
               <img
-                src={tongQuan.AvatarUrl}
+                src={getMediaUrl(tongQuan.AvatarUrl)}
                 alt={tongQuan.HoVaTen}
                 className="w-14 h-14 rounded-2xl object-cover border-2 border-amber-400 shadow-md shrink-0"
               />

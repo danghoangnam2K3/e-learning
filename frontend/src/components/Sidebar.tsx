@@ -1,3 +1,4 @@
+import { getMediaUrl } from '../services/api';
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';

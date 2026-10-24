@@ -1,3 +1,4 @@
+import { getMediaUrl } from '../services/api';
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { UserItem, PaginationMeta } from '../types';
@@ -324,7 +325,7 @@ export const StudentList: React.FC = () => {
                       >
                         {student.AvatarUrl ? (
                           <img
-                            src={student.AvatarUrl}
+                            src={getMediaUrl(student.AvatarUrl)}
                             alt={student.HoVaTen}
                             className="w-9 h-9 rounded-full object-cover shrink-0 border border-amber-300 group-hover/student:scale-105 group-hover/student:border-amber-400 group-hover/student:shadow-xs transition-all"
                           />

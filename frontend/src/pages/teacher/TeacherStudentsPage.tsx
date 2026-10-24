@@ -1,3 +1,4 @@
+import { getMediaUrl } from '../../services/api';
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../../services/api';
@@ -228,7 +229,7 @@ export const TeacherStudentsPage: React.FC = () => {
                         >
                           {s.AvatarUrl ? (
                             <img
-                              src={s.AvatarUrl}
+                              src={getMediaUrl(s.AvatarUrl)}
                               alt={s.HoVaTen}
                               className="w-8 h-8 rounded-xl object-cover border border-amber-300 shadow-sm shrink-0 group-hover:scale-105 transition-transform"
                             />

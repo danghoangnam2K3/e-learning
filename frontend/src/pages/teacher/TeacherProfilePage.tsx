@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { api } from '../../services/api';
+import { api, getMediaUrl } from '../../services/api';
 import { TeacherAssignmentsData } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -171,7 +171,7 @@ export const TeacherProfilePage: React.FC = () => {
             >
               {(user?.avatarUrl || thongTinGiaoVien.AvatarUrl) ? (
                 <img
-                  src={user?.avatarUrl || thongTinGiaoVien.AvatarUrl}
+                  src={getMediaUrl(user?.avatarUrl || thongTinGiaoVien.AvatarUrl)}
                   alt={thongTinGiaoVien.HoVaTen}
                   className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl object-cover border-2 border-amber-400 shadow-lg shadow-amber-400/20 transition-all group-hover:brightness-75"
                 />

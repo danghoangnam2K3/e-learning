@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { AuthUser } from '../types';
-import { api } from '../services/api';
+import { api, getMediaUrl } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import {
   User,
@@ -87,7 +87,7 @@ export const AccountInfoModal: React.FC<AccountInfoModalProps> = ({
           <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
             {user.avatarUrl ? (
               <img
-                src={user.avatarUrl}
+                src={getMediaUrl(user.avatarUrl)}
                 alt={user.hoVaTen}
                 className="w-16 h-16 rounded-2xl object-cover border-2 border-amber-400 shadow-md transition-all group-hover:brightness-75"
               />
