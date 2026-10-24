@@ -1,3 +1,4 @@
+import { formatVideoEmbedUrl } from '../utils/videoHelper';
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { CourseItem, LessonItem } from '../types';
@@ -550,13 +551,20 @@ export const CourseManagement: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-slate-300 font-medium mb-1">Đường dẫn Video (URL / MP4)</label>
+                <label className="block text-slate-300 font-medium mb-1">Đường dẫn Video (YouTube / MP4)</label>
                 <input
                   type="text"
-                  placeholder="/videos/bai1.mp4"
+                  placeholder="Dán link YouTube (ví dụ: https://www.youtube.com/watch?v=... hoặc /videos/bai1.mp4)"
                   value={lessonForm.duongDanVideo}
-                  onChange={(e) => setLessonForm({ ...lessonForm, duongDanVideo: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-indigo-500"
+                  onChange={(e) => setLessonForm({ ...lessonForm, duongDanVideo: formatVideoEmbedUrl(e.target.value) })}
+                  onPaste={(e) => {
+                    const text = e.clipboardData.getData('text');
+                    if (text && (text.includes('youtube.com') || text.includes('youtu.be') || text.includes('<iframe'))) {
+                      e.preventDefault();
+                      setLessonForm({ ...lessonForm, duongDanVideo: formatVideoEmbedUrl(text) });
+                    }
+                  }}
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-indigo-500 text-xs font-mono"
                 />
               </div>
               <div className="pt-2 flex justify-end gap-2">

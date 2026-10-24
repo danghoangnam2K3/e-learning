@@ -1,3 +1,4 @@
+import { formatVideoEmbedUrl, isYouTubeUrl } from '../utils/videoHelper';
 import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../services/api';
 import { CurriculumSummaryItem, CurriculumDetailResponse, ChapterItem, LessonItem } from '../types';
@@ -374,7 +375,7 @@ export const LessonManagement: React.FC<LessonManagementProps> = ({ initialCours
           tenBaiGiang: lessonModalState.tenBaiGiang,
           soThuTu: Number(lessonModalState.soThuTu),
           thoiLuongPhut: Number(lessonModalState.thoiLuongPhut),
-          duongDanVideo: lessonModalState.duongDanVideo,
+          duongDanVideo: formatVideoEmbedUrl(lessonModalState.duongDanVideo),
           taiLieuDinhKem: lessonModalState.taiLieuDinhKem,
         });
         showToast('Đã thêm bài giảng vào chương thành công!');
@@ -384,7 +385,7 @@ export const LessonManagement: React.FC<LessonManagementProps> = ({ initialCours
           monHoc: lessonModalState.monHoc,
           soThuTu: Number(lessonModalState.soThuTu),
           thoiLuongPhut: Number(lessonModalState.thoiLuongPhut),
-          duongDanVideo: lessonModalState.duongDanVideo,
+          duongDanVideo: formatVideoEmbedUrl(lessonModalState.duongDanVideo),
           taiLieuDinhKem: lessonModalState.taiLieuDinhKem,
         });
         showToast('Đã cập nhật bài giảng thành công!');
@@ -1118,19 +1119,34 @@ export const LessonManagement: React.FC<LessonManagementProps> = ({ initialCours
               </div>
 
               <div className="space-y-1">
-                <label className="block font-bold text-slate-700">Đường dẫn Video bài giảng:</label>
+                <label className="block font-bold text-slate-700">Đường dẫn Video bài giảng (YouTube / MP4):</label>
                 <input
                   type="text"
-                  placeholder="Ví dụ: /videos/b2_chuong1_bai1.mp4"
+                  placeholder="Dán link YouTube (ví dụ: https://www.youtube.com/watch?v=... hoặc https://youtu.be/...)"
                   value={lessonModalState.duongDanVideo}
                   onChange={(e) =>
                     setLessonModalState((prev) => ({
                       ...prev,
-                      duongDanVideo: e.target.value,
+                      duongDanVideo: formatVideoEmbedUrl(e.target.value),
                     }))
                   }
+                  onPaste={(e) => {
+                    const text = e.clipboardData.getData('text');
+                    if (text && (text.includes('youtube.com') || text.includes('youtu.be') || text.includes('<iframe'))) {
+                      e.preventDefault();
+                      setLessonModalState((prev) => ({
+                        ...prev,
+                        duongDanVideo: formatVideoEmbedUrl(text),
+                      }));
+                    }
+                  }}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-[11px] focus:outline-none focus:border-amber-400"
                 />
+                {isYouTubeUrl(lessonModalState.duongDanVideo) && (
+                  <p className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1 mt-1">
+                    <span>✓ Đã tự động nhúng video YouTube (Sẵn sàng phát trên trang học viên)</span>
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1">

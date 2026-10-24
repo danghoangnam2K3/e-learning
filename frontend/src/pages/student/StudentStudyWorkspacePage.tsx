@@ -1,3 +1,4 @@
+import { formatVideoEmbedUrl } from '../../utils/videoHelper';
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
@@ -316,14 +317,30 @@ export const StudentStudyWorkspacePage: React.FC = () => {
           <div className="bg-[#0b101c] rounded-3xl overflow-hidden shadow-2xl border border-slate-800 flex flex-col">
             {/* Player Container */}
             <div className="relative aspect-video w-full bg-slate-950 flex items-center justify-center group overflow-hidden">
-              {currentLesson.duongDanVideo && currentLesson.duongDanVideo.includes('http') ? (
-                <iframe
-                  src={currentLesson.duongDanVideo}
-                  title={currentLesson.tenBaiGiang}
-                  className="w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
+              {currentLesson.duongDanVideo && currentLesson.duongDanVideo.trim().length > 0 ? (
+                (() => {
+                  const embedUrl = formatVideoEmbedUrl(currentLesson.duongDanVideo);
+                  if (embedUrl.match(/\.(mp4|webm|ogg)($|\?)/i)) {
+                    return (
+                      <video
+                        src={embedUrl}
+                        controls
+                        className="w-full h-full object-contain"
+                        onPlay={() => setIsPlaying(true)}
+                        onPause={() => setIsPlaying(false)}
+                      />
+                    );
+                  }
+                  return (
+                    <iframe
+                      src={embedUrl}
+                      title={currentLesson.tenBaiGiang}
+                      className="w-full h-full border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    ></iframe>
+                  );
+                })()
               ) : (
                 /* Rich HTML5 Graphic Simulated Player */
                 <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center bg-gradient-to-tr from-slate-950 via-[#0e1628] to-slate-900 relative">
