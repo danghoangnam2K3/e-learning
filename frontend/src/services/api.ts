@@ -47,6 +47,7 @@ class ApiService {
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const headers: Record<string, string> = {
+      'ngrok-skip-browser-warning': 'true',
       ...(options.headers as Record<string, string>),
     };
 
@@ -520,4 +521,5 @@ class ApiService {
 }
 
 export const api = new ApiService();
+
 
