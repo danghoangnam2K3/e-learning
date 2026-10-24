@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '../services/api';
+import {api } from '../services/api';
 import { UserItem, PaginationMeta } from '../types';
 import { useDebounce } from '../hooks/useDebounce';
 import { StudentDetailModal } from './StudentDetailModal';
@@ -29,6 +29,8 @@ import {
   Mail,
   CreditCard,
   ArrowUpDown,
+  Camera,
+  Loader2,
 } from 'lucide-react';
 
 export const UserManagement: React.FC = () => {
@@ -60,6 +62,41 @@ export const UserManagement: React.FC = () => {
   const [resetPassUser, setResetPassUser] = useState<UserItem | null>(null);
   const [newPassword, setNewPassword] = useState('123456');
   const [deleteConfirmUser, setDeleteConfirmUser] = useState<UserItem | null>(null);
+
+  // Avatar Upload State cho Admin
+  const [uploadingAvatarUserId, setUploadingAvatarUserId] = useState<number | null>(null);
+
+  const handleAvatarUpload = async (userId: number, file: File) => {
+    if (!file) return;
+    if (!file.type.match(/\/(jpeg|png|webp|jpg)$/i)) {
+      showAlert('Chỉ chấp nhận hình ảnh định dạng JPG, PNG hoặc WEBP.', 'error');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      showAlert('Dung lượng hình ảnh tối đa là 2MB.', 'error');
+      return;
+    }
+
+    setUploadingAvatarUserId(userId);
+    try {
+      const res = await api.uploadUserAvatar(userId, file);
+      showAlert(`Cập nhật ảnh đại diện cho tài khoản #${userId} thành công!`, 'success');
+      
+      // Cập nhật ngay trên bảng danh sách
+      setUsers((prev) =>
+        prev.map((u) => (u.MaNguoiDung === userId ? { ...u, AvatarUrl: res.avatarUrl } : u))
+      );
+
+      // Cập nhật nếu đang mở modal chỉnh sửa
+      if (editingUser && editingUser.MaNguoiDung === userId) {
+        setEditingUser((prev) => (prev ? { ...prev, AvatarUrl: res.avatarUrl } : null));
+      }
+    } catch (err: any) {
+      showAlert(err.message || 'Lỗi khi cập nhật ảnh đại diện người dùng.', 'error');
+    } finally {
+      setUploadingAvatarUserId(null);
+    }
+  };
 
   // Form data for Add / Edit
   const [formData, setFormData] = useState({
@@ -502,25 +539,51 @@ export const UserManagement: React.FC = () => {
                             : undefined
                         }
                       >
-                        {u.AvatarUrl ? (
-                          <img
-                            src={u.AvatarUrl}
-                            alt={u.HoVaTen}
-                            className="w-9 h-9 rounded-xl object-cover shrink-0 border border-slate-200 group-hover/user:scale-105 transition-transform"
-                          />
-                        ) : (
-                          <div
-                            className={`w-9 h-9 rounded-xl border flex items-center justify-center text-xs font-bold shrink-0 uppercase transition-all ${
-                              u.MaVaiTro === 'TEACHER'
-                                ? 'bg-blue-50 text-blue-700 border-blue-200 group-hover/user:scale-105 group-hover/user:border-blue-400'
-                                : u.MaVaiTro === 'STUDENT'
-                                ? 'bg-amber-50 text-amber-800 border-amber-200 group-hover/user:scale-105 group-hover/user:border-amber-400'
-                                : 'bg-purple-50 text-purple-700 border-purple-200'
-                            }`}
-                          >
-                            {u.HoVaTen ? u.HoVaTen.charAt(0) : 'U'}
-                          </div>
-                        )}
+                        <div className="relative group/avatar shrink-0" title="Admin: Nhấn vào biểu tượng camera để đổi ảnh đại diện">
+  {u.AvatarUrl ? (
+    <img
+      src={u.AvatarUrl}
+      alt={u.HoVaTen}
+      className="w-10 h-10 rounded-xl object-cover shrink-0 border border-slate-200 group-hover/avatar:ring-2 group-hover/avatar:ring-amber-400 transition-all shadow-xs"
+    />
+  ) : (
+    <div
+      className={`w-10 h-10 rounded-xl border flex items-center justify-center text-xs font-bold shrink-0 uppercase transition-all ${
+        u.MaVaiTro === 'TEACHER'
+          ? 'bg-blue-50 text-blue-700 border-blue-200'
+          : u.MaVaiTro === 'STUDENT'
+          ? 'bg-amber-50 text-amber-800 border-amber-200'
+          : 'bg-purple-50 text-purple-700 border-purple-200'
+      }`}
+    >
+      {u.HoVaTen ? u.HoVaTen.charAt(0) : 'U'}
+    </div>
+  )}
+
+  {/* Camera Overlay Badge cho Admin */}
+  <label
+    className="absolute inset-0 bg-slate-950/65 rounded-xl flex items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity cursor-pointer shadow-sm"
+    onClick={(e) => e.stopPropagation()}
+    title="Tải ảnh đại diện mới cho tài khoản này"
+  >
+    {uploadingAvatarUserId === u.MaNguoiDung ? (
+      <Loader2 className="w-4 h-4 text-amber-400 animate-spin" />
+    ) : (
+      <Camera className="w-4 h-4 text-white hover:text-amber-300 transition-colors" />
+    )}
+    <input
+      type="file"
+      accept="image/jpeg,image/png,image/webp"
+      className="hidden"
+      disabled={uploadingAvatarUserId === u.MaNguoiDung}
+      onChange={(e) => {
+        const file = e.target.files?.[0];
+        if (file) handleAvatarUpload(u.MaNguoiDung, file);
+        e.target.value = '';
+      }}
+    />
+  </label>
+</div>
                         <div>
                           <div
                             className={`font-bold text-slate-900 text-sm transition-colors ${
@@ -590,6 +653,28 @@ export const UserManagement: React.FC = () => {
                     {/* Admin Actions */}
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
+                        <label
+                          title="Admin: Đổi ảnh đại diện tài khoản"
+                          className="p-1.5 rounded-lg text-slate-600 hover:text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer border border-transparent hover:border-amber-200 flex items-center justify-center relative"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {uploadingAvatarUserId === u.MaNguoiDung ? (
+                            <Loader2 className="w-4 h-4 text-amber-500 animate-spin" />
+                          ) : (
+                            <Camera className="w-4 h-4" />
+                          )}
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            className="hidden"
+                            disabled={uploadingAvatarUserId === u.MaNguoiDung}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleAvatarUpload(u.MaNguoiDung, file);
+                              e.target.value = '';
+                            }}
+                          />
+                        </label>
                         <button
                           onClick={() => openEditModal(u)}
                           title="Chỉnh sửa & Phân quyền"
@@ -710,6 +795,54 @@ export const UserManagement: React.FC = () => {
             </div>
 
             <form onSubmit={handleSaveUser} className="space-y-4 text-xs font-medium">
+              {/* Khu vực đổi ảnh đại diện dành cho Admin */}
+              {editingUser && (
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/90 flex items-center gap-4">
+                  <div className="relative shrink-0">
+                    {editingUser.AvatarUrl ? (
+                      <img
+                        src={editingUser.AvatarUrl}
+                        alt={editingUser.HoVaTen}
+                        className="w-14 h-14 rounded-2xl object-cover border-2 border-amber-400 shadow-sm"
+                      />
+                    ) : (
+                      <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-800 font-black text-xl flex items-center justify-center border border-amber-300">
+                        {editingUser.HoVaTen ? editingUser.HoVaTen.charAt(0).toUpperCase() : 'U'}
+                      </div>
+                    )}
+                    {uploadingAvatarUserId === editingUser.MaNguoiDung && (
+                      <div className="absolute inset-0 bg-slate-900/60 rounded-2xl flex items-center justify-center">
+                        <Loader2 className="w-5 h-5 text-amber-400 animate-spin" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-bold text-slate-800 flex items-center gap-2">
+                      <span>Ảnh đại diện tài khoản</span>
+                      <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">Admin Quyền</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 mb-2">
+                      Cho phép Admin thay đổi ảnh đại diện của tài khoản này (JPG, PNG, WEBP tối đa 2MB).
+                    </p>
+                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-semibold shadow-xs cursor-pointer transition-all">
+                      <Camera className="w-3.5 h-3.5 text-amber-500" />
+                      <span>{uploadingAvatarUserId === editingUser.MaNguoiDung ? 'Đang tải lên...' : 'Tải ảnh đại diện mới'}</span>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="hidden"
+                        disabled={uploadingAvatarUserId === editingUser.MaNguoiDung}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleAvatarUpload(editingUser.MaNguoiDung, file);
+                          e.target.value = '';
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+              )}
               {/* Họ tên */}
               <div>
                 <label className="block text-slate-700 font-bold mb-1">Họ và tên *</label>

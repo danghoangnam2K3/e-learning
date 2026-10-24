@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '../services/api';
+import {api } from '../services/api';
 import {
   X,
   UserCheck,
@@ -14,6 +14,8 @@ import {
   CheckCircle2,
   Clock,
   Award,
+  Camera,
+  Loader2,
 } from 'lucide-react';
 
 interface TeacherDetailModalProps {
@@ -26,6 +28,33 @@ export const TeacherDetailModal: React.FC<TeacherDetailModalProps> = ({
   onClose,
 }) => {
   const [loading, setLoading] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !teacherId) return;
+    if (!file.type.match(/\/(jpeg|png|webp|jpg)$/i)) {
+      alert('Chỉ chấp nhận hình ảnh JPG, PNG hoặc WEBP.');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Dung lượng hình ảnh tối đa 2MB.');
+      return;
+    }
+    setUploadingAvatar(true);
+    try {
+      const res = await api.uploadUserAvatar(teacherId, file);
+      setData((prev: any) => prev ? {
+        ...prev,
+        thongTinGiaoVien: { ...prev.thongTinGiaoVien, AvatarUrl: res.avatarUrl },
+      } : null);
+    } catch (err: any) {
+      alert(err.message || 'Lỗi tải ảnh lên');
+    } finally {
+      setUploadingAvatar(false);
+      e.target.value = '';
+    }
+  };
   const [data, setData] = useState<{
     thongTinGiaoVien: any;
     danhSachLopPhuTrach: any[];
@@ -77,6 +106,7 @@ export const TeacherDetailModal: React.FC<TeacherDetailModalProps> = ({
         {/* Header Modal */}
         <div className="p-5 border-b border-slate-100 bg-slate-50/70 flex items-start justify-between gap-4">
           <div className="flex items-center gap-3.5">
+            <div className="relative group/modalAvatar shrink-0" title="Admin: Nhấn để đổi ảnh đại diện cho giáo viên này">
             {teacher?.AvatarUrl ? (
               <img
                 src={teacher.AvatarUrl}
@@ -88,6 +118,21 @@ export const TeacherDetailModal: React.FC<TeacherDetailModalProps> = ({
                 {teacher?.HoVaTen ? teacher.HoVaTen.charAt(0).toUpperCase() : <UserCheck className="w-6 h-6" />}
               </div>
             )}
+            <label className="absolute inset-0 bg-slate-950/65 rounded-2xl flex items-center justify-center opacity-0 group-hover/modalAvatar:opacity-100 transition-opacity cursor-pointer shadow-md">
+              {uploadingAvatar ? (
+                <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
+              ) : (
+                <Camera className="w-5 h-5 text-white hover:text-blue-300 transition-colors" />
+              )}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                disabled={uploadingAvatar}
+                onChange={handleAvatarChange}
+              />
+            </label>
+          </div>
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-heading font-black text-lg text-slate-900">
