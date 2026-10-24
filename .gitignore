@@ -69,6 +69,7 @@ tmp/
 # ==========================================
 # 5. CƠ SỞ DỮ LIỆU & DUMP DATA NHẠY CẢM
 # ==========================================
+*.sql
 *.sqlite
 *.sqlite3
 *.db
@@ -76,6 +77,8 @@ tmp/
 *.dump
 *.sql.gz
 *.sql.tar.gz
+sql/
+backend/sql/
 
 # ==========================================
 # 6. LOGS & GỠ LỖI
@@ -121,3 +124,4 @@ $RECYCLE.BIN/
 scratch_*.js
 scratch_*.ts
 test_scratch*
+

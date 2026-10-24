@@ -35,3 +35,7 @@ Thumbs.db
 
 # Internal scratch scripts
 scratch_*.js
+
+*.sql
+sql/
+
