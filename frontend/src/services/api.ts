@@ -522,6 +522,42 @@ class ApiService {
     return this.request<any>(`/reports/students/${studentId}`);
   }
 
+  async getCourseClassReport(classId: number) {
+    return this.request<any>(`/reports/course-detail/${classId}`);
+  }
+
+  async downloadCourseReportExcel(classId: number, filename?: string) {
+    const url = `${BASE_URL}/reports/export-course-excel/${classId}`;
+    await this.downloadBlobFile(url, filename || `Bao_cao_khoa_hoc_lop_${classId}.xlsx`);
+  }
+
+  async downloadStudentReportDocx(studentId: number, filename?: string) {
+    const url = `${BASE_URL}/reports/export-student-doc/${studentId}`;
+    await this.downloadBlobFile(url, filename || `Bao_cao_chi_tiet_hoc_vien_${studentId}.docx`);
+  }
+
+  private async downloadBlobFile(url: string, filename: string) {
+    const headers: Record<string, string> = {
+      'ngrok-skip-browser-warning': 'true',
+    };
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      throw new Error(`Lỗi xuất tệp (${res.status}): ${res.statusText}`);
+    }
+    const blob = await res.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(downloadUrl);
+  }
+
   async getTeacherAssignments(teacherId: number) {
     return this.request<any>(`/users/${teacherId}/teacher-assignments`);
   }

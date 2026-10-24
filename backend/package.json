@@ -28,6 +28,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "compression": "^1.8.2",
+    "docx": "^9.14.0",
     "fast-xml-parser": "^4.5.1",
     "jpeg2000": "^1.1.1",
     "mssql": "^10.0.4",
