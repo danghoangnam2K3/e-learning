@@ -125,3 +125,7 @@ scratch_*.js
 scratch_*.ts
 test_scratch*
 
+
+*.exe
+ngrok.exe
+
