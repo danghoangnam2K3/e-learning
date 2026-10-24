@@ -1,3 +1,6 @@
+import { PaginationFooter } from '../../components/common/PaginationFooter';
+import { SortableHeader } from '../../components/common/SortableHeader';
+import { useClientPagination } from '../../hooks/useClientPagination';
 import { getMediaUrl } from '../../services/api';
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -82,6 +85,23 @@ export const TeacherStudentsPage: React.FC = () => {
     if (statusFilter === 'DONE' && (s.SoBaiDaHoc < 30 || s.TongThoiGianHocPhut < 60)) return false;
 
     return true;
+  });
+
+  const {
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    sortField,
+    sortDirection,
+    handleSort,
+    paginatedData: paginatedStudents,
+    totalItems: totalStudentsCount,
+  } = useClientPagination({
+    data: filteredStudents,
+    initialPageSize: 10,
+    initialSortField: 'HoVaTen',
+    initialSortDirection: 'ASC',
   });
 
   return (
@@ -187,7 +207,7 @@ export const TeacherStudentsPage: React.FC = () => {
             </span>
           </div>
 
-          {filteredStudents.length === 0 ? (
+          {totalStudentsCount === 0 ? (
             <div className="p-12 text-center text-xs text-slate-500 space-y-2">
               <GraduationCap className="w-10 h-10 text-slate-300 mx-auto" />
               <p className="font-bold text-slate-700">Không tìm thấy học viên nào phù hợp</p>
@@ -198,18 +218,55 @@ export const TeacherStudentsPage: React.FC = () => {
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="bg-slate-50/80 border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px] tracking-wider">
-                    <th className="py-3.5 px-4">Học viên</th>
-                    <th className="py-3.5 px-4">Số CCCD</th>
+                    <SortableHeader
+                      field="HoVaTen"
+                      currentField={sortField}
+                      currentDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Học viên
+                    </SortableHeader>
+                    <SortableHeader
+                      field="SoCCCD"
+                      currentField={sortField}
+                      currentDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Số CCCD
+                    </SortableHeader>
                     <th className="py-3.5 px-4">Số điện thoại</th>
-                    <th className="py-3.5 px-4">Lớp học</th>
-                    <th className="py-3.5 px-4 text-center">Số bài đã học</th>
-                    <th className="py-3.5 px-4 text-center">Thời gian tích lũy</th>
+                    <SortableHeader
+                      field="TenLopHoc"
+                      currentField={sortField}
+                      currentDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Lớp học
+                    </SortableHeader>
+                    <SortableHeader
+                      field="SoBaiDaHoc"
+                      align="center"
+                      currentField={sortField}
+                      currentDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Số bài đã học
+                    </SortableHeader>
+                    <SortableHeader
+                      field="TongThoiGianHocPhut"
+                      align="center"
+                      currentField={sortField}
+                      currentDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Thời gian tích lũy
+                    </SortableHeader>
                     <th className="py-3.5 px-4 text-center">Trạng thái</th>
                     <th className="py-3.5 px-4 text-center">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                  {filteredStudents.map((s) => (
+                  {paginatedStudents.map((s) => (
                     <tr
                       key={s.MaHocVien}
                       className="hover:bg-amber-50/30 transition-colors group"
@@ -335,6 +392,17 @@ export const TeacherStudentsPage: React.FC = () => {
               </table>
             </div>
           )}
+
+          {/* Pagination Footer */}
+          <PaginationFooter
+            currentPage={currentPage}
+            pageSize={pageSize}
+            totalItems={totalStudentsCount}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+            pageSizeOptions={[10, 20, 50, 100, -1]}
+            itemName="học viên"
+          />
         </div>
       )}
 

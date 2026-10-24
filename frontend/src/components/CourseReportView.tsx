@@ -1,3 +1,6 @@
+import { PaginationFooter } from './common/PaginationFooter';
+import { SortableHeader } from './common/SortableHeader';
+import { useClientPagination } from '../hooks/useClientPagination';
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { ReportOverviewItem, CourseItem } from '../types';
@@ -14,6 +17,23 @@ import {
 
 export const CourseReportView: React.FC = () => {
   const [reports, setReports] = useState<ReportOverviewItem[]>([]);
+
+  const {
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    sortField,
+    sortDirection,
+    handleSort,
+    paginatedData: paginatedReports,
+    totalItems: totalReportsCount,
+  } = useClientPagination({
+    data: reports,
+    initialPageSize: 10,
+    initialSortField: 'TenKhoaHoc',
+    initialSortDirection: 'ASC',
+  });
   const [courses, setCourses] = useState<CourseItem[]>([]);
   const [selectedCourseFilter, setSelectedCourseFilter] = useState<number>(0);
   const [loading, setLoading] = useState(false);
@@ -94,24 +114,61 @@ export const CourseReportView: React.FC = () => {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
-                <th className="py-3.5 px-4">Tên Khóa Học</th>
-                <th className="py-3.5 px-4">Lớp Học</th>
-                <th className="py-3.5 px-4">Hạng GPLX</th>
-                <th className="py-3.5 px-4 text-center">Tổng Sĩ Số</th>
-                <th className="py-3.5 px-4 text-center">Hoàn Thành (Đủ ĐK)</th>
+                <SortableHeader
+                  field="TenKhoaHoc"
+                  currentField={sortField}
+                  currentDirection={sortDirection}
+                  onSort={handleSort}
+                >
+                  Tên Khóa Học
+                </SortableHeader>
+                <SortableHeader
+                  field="TenLopHoc"
+                  currentField={sortField}
+                  currentDirection={sortDirection}
+                  onSort={handleSort}
+                >
+                  Lớp Học
+                </SortableHeader>
+                <SortableHeader
+                  field="MaHangGPLX"
+                  currentField={sortField}
+                  currentDirection={sortDirection}
+                  onSort={handleSort}
+                >
+                  Hạng GPLX
+                </SortableHeader>
+                <SortableHeader
+                  field="TongSoHocVien"
+                  align="center"
+                  currentField={sortField}
+                  currentDirection={sortDirection}
+                  onSort={handleSort}
+                >
+                  Tổng Sĩ Số
+                </SortableHeader>
+                <SortableHeader
+                  field="SoHocVienDuDieuKienThi"
+                  align="center"
+                  currentField={sortField}
+                  currentDirection={sortDirection}
+                  onSort={handleSort}
+                >
+                  Hoàn Thành (Đủ ĐK)
+                </SortableHeader>
                 <th className="py-3.5 px-4 text-center">Tỷ Lệ</th>
                 <th className="py-3.5 px-4 text-center">Tiến Độ Trung Bình</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {reports.length === 0 ? (
+              {totalReportsCount === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-12 text-slate-400 font-medium">
                     {loading ? 'Đang tải báo cáo tổng quan...' : 'Không có dữ liệu báo cáo nào.'}
                   </td>
                 </tr>
               ) : (
-                reports.map((item, idx) => {
+                paginatedReports.map((item, idx) => {
                   const soHoanThanh = item.SoHocVienDuDieuKienThi ?? item.SoHocVienHoanThanh ?? 0;
                   const rate =
                     item.TongSoHocVien > 0
@@ -173,6 +230,17 @@ export const CourseReportView: React.FC = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Footer theo skill/phan_trang.md */}
+        <PaginationFooter
+          currentPage={currentPage}
+          pageSize={pageSize}
+          totalItems={totalReportsCount}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[10, 20, 50, -1]}
+          itemName="lớp báo cáo"
+        />
       </div>
     </div>
   );

@@ -1,3 +1,5 @@
+import { PaginationFooter } from './common/PaginationFooter';
+import { SortableHeader } from './common/SortableHeader';
 import { getMediaUrl } from '../services/api';
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
@@ -37,6 +39,8 @@ export const StudentList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'LOCKED'>('ALL');
+  const [sortBy, setSortBy] = useState('NgayTao');
+  const [sortDir, setSortDir] = useState<'ASC' | 'DESC'>('DESC');
   const debouncedSearch = useDebounce(searchTerm, 350);
 
   // Modal xem chi tiết học viên (bài học đã học & thời gian học)
@@ -74,9 +78,12 @@ export const StudentList: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const fetchStudents = async (
-    page: number = 1,
+    page: number = pagination.trangHienTai,
+    pageSize: number = pagination.soBanGhiMoiTrang || 10,
     keyword: string = debouncedSearch,
-    status: 'ALL' | 'ACTIVE' | 'LOCKED' = statusFilter
+    status: 'ALL' | 'ACTIVE' | 'LOCKED' = statusFilter,
+    sortField: string = sortBy,
+    sortDirection: 'ASC' | 'DESC' = sortDir
   ) => {
     setLoading(true);
     try {
@@ -86,7 +93,9 @@ export const StudentList: React.FC = () => {
         tuKhoa: keyword || undefined,
         trangThai: trangThaiParam,
         trangHienTai: page,
-        soBanGhiMoiTrang: 10,
+        soBanGhiMoiTrang: pageSize,
+        sapXepTheo: sortField,
+        huongSapXep: sortDirection,
       });
       setStudents(res.danhSach || []);
       setPagination(res.phanTrang);
@@ -98,8 +107,8 @@ export const StudentList: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchStudents(1, debouncedSearch, statusFilter);
-  }, [debouncedSearch, statusFilter]);
+    fetchStudents(1, pagination.soBanGhiMoiTrang, debouncedSearch, statusFilter, sortBy, sortDir);
+  }, [debouncedSearch, statusFilter, sortBy, sortDir]);
 
   // Chuyển đổi trạng thái học tập nhanh (Đang học / Tạm khóa)
   const handleToggleStatus = async (user: UserItem) => {
@@ -298,11 +307,57 @@ export const StudentList: React.FC = () => {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
-                <th className="py-3 px-4">Học Viên</th>
-                <th className="py-3 px-4">Tên Đăng Nhập</th>
+                <SortableHeader
+                  field="HoVaTen"
+                  currentField={sortBy}
+                  currentDirection={sortDir}
+                  onSort={(f, d) => {
+                    if (d === null) {
+                      setSortBy('NgayTao');
+                      setSortDir('DESC');
+                    } else {
+                      setSortBy(f);
+                      setSortDir(d);
+                    }
+                  }}
+                >
+                  Học Viên
+                </SortableHeader>
+                <SortableHeader
+                  field="TenDangNhap"
+                  currentField={sortBy}
+                  currentDirection={sortDir}
+                  onSort={(f, d) => {
+                    if (d === null) {
+                      setSortBy('NgayTao');
+                      setSortDir('DESC');
+                    } else {
+                      setSortBy(f);
+                      setSortDir(d);
+                    }
+                  }}
+                >
+                  Tên Đăng Nhập
+                </SortableHeader>
                 <th className="py-3 px-4">Số CCCD</th>
                 <th className="py-3 px-4">Liên Hệ</th>
-                <th className="py-3 px-4 text-center">Trạng Thái Học Tập</th>
+                <SortableHeader
+                  field="TrangThai"
+                  align="center"
+                  currentField={sortBy}
+                  currentDirection={sortDir}
+                  onSort={(f, d) => {
+                    if (d === null) {
+                      setSortBy('NgayTao');
+                      setSortDir('DESC');
+                    } else {
+                      setSortBy(f);
+                      setSortDir(d);
+                    }
+                  }}
+                >
+                  Trạng Thái Học Tập
+                </SortableHeader>
                 <th className="py-3 px-4 text-right">Thao Tác Quản Trị</th>
               </tr>
             </thead>
@@ -446,30 +501,16 @@ export const StudentList: React.FC = () => {
           </table>
         </div>
 
-        {/* Pagination Bar */}
-        {pagination.tongSoTrang > 1 && (
-          <div className="p-4 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-slate-500">
-              Trang {pagination.trangHienTai} / {pagination.tongSoTrang}
-            </span>
-            <div className="flex items-center gap-1">
-              <button
-                disabled={pagination.trangHienTai <= 1}
-                onClick={() => fetchStudents(pagination.trangHienTai - 1)}
-                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 cursor-pointer"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                disabled={pagination.trangHienTai >= pagination.tongSoTrang}
-                onClick={() => fetchStudents(pagination.trangHienTai + 1)}
-                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 cursor-pointer"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Pagination Bar chuẩn theo skill/phan_trang.md */}
+        <PaginationFooter
+          currentPage={pagination.trangHienTai}
+          pageSize={pagination.soBanGhiMoiTrang}
+          totalItems={pagination.tongSoBanGhi}
+          onPageChange={(page) => fetchStudents(page, pagination.soBanGhiMoiTrang)}
+          onPageSizeChange={(size) => fetchStudents(1, size)}
+          pageSizeOptions={[10, 20, 50, 100, -1]}
+          itemName="học viên"
+        />
       </div>
 
       {/* ========================================================================= */}

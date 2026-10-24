@@ -1,3 +1,6 @@
+import { PaginationFooter } from './common/PaginationFooter';
+import { SortableHeader } from './common/SortableHeader';
+import { useClientPagination } from '../hooks/useClientPagination';
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { UserItem } from '../types';
@@ -66,6 +69,23 @@ export const StudentProgressReportView: React.FC = () => {
 
   const tongQuan = reportData?.tongQuanHocVien;
   const chiTiet = reportData?.chiTietBaiGiang || [];
+
+  const {
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    sortField,
+    sortDirection,
+    handleSort,
+    paginatedData: paginatedChiTiet,
+    totalItems: totalChiTietCount,
+  } = useClientPagination({
+    data: chiTiet,
+    initialPageSize: 10,
+    initialSortField: 'SoThuTu',
+    initialSortDirection: 'ASC',
+  });
 
   // Kiểm tra điều kiện tốt nghiệp
   const isQualified =
@@ -221,16 +241,46 @@ export const StudentProgressReportView: React.FC = () => {
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
-                    <th className="py-3 px-4">Bài Giảng</th>
-                    <th className="py-3 px-4">Môn Học</th>
+                    <SortableHeader
+                      field="TenBaiGiang"
+                      currentField={sortField}
+                      currentDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Bài Giảng
+                    </SortableHeader>
+                    <SortableHeader
+                      field="MonHoc"
+                      currentField={sortField}
+                      currentDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Môn Học
+                    </SortableHeader>
                     <th className="py-3 px-4 text-center">Yêu Cầu</th>
-                    <th className="py-3 px-4 text-center">Đã Học</th>
-                    <th className="py-3 px-4 text-center">Tình Trạng</th>
+                    <SortableHeader
+                      field="ThoiGianHocGiay"
+                      align="center"
+                      currentField={sortField}
+                      currentDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Đã Học
+                    </SortableHeader>
+                    <SortableHeader
+                      field="DaHoanThanh"
+                      align="center"
+                      currentField={sortField}
+                      currentDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Tình Trạng
+                    </SortableHeader>
                     <th className="py-3 px-4 text-right">Lần Học Cuối</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {chiTiet.length === 0 ? (
+                  {totalChiTietCount === 0 ? (
                     <tr>
                       <td colSpan={6} className="text-center py-10 text-slate-400 font-medium">
                         {loading
@@ -239,7 +289,7 @@ export const StudentProgressReportView: React.FC = () => {
                       </td>
                     </tr>
                   ) : (
-                    chiTiet.map((item, idx) => {
+                    paginatedChiTiet.map((item, idx) => {
                       const hocGiay = item.ThoiGianHocGiay || 0;
                       const hocPhut = Math.floor(hocGiay / 60);
                       const hocDuGiay = hocGiay % 60;
@@ -298,6 +348,17 @@ export const StudentProgressReportView: React.FC = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination Footer */}
+            <PaginationFooter
+              currentPage={currentPage}
+              pageSize={pageSize}
+              totalItems={totalChiTietCount}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+              pageSizeOptions={[10, 20, 50, -1]}
+              itemName="bài học"
+            />
           </div>
         </div>
       </div>

@@ -1,3 +1,5 @@
+import { PaginationFooter } from './common/PaginationFooter';
+import { SortableHeader } from './common/SortableHeader';
 import { getMediaUrl } from '../services/api';
 import React, { useState, useEffect } from 'react';
 import {api } from '../services/api';
@@ -495,12 +497,73 @@ export const UserManagement: React.FC = () => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-200/80 bg-slate-50/80 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
-                <th className="py-3.5 px-4">Tài khoản & Người dùng</th>
-                <th className="py-3.5 px-4">Phân quyền (Vai trò)</th>
-                <th className="py-3.5 px-4">Định danh / Liên hệ</th>
-                <th className="py-3.5 px-4">Email</th>
-                <th className="py-3.5 px-4 text-center">Trạng thái</th>
-                <th className="py-3.5 px-4 text-right">Thao tác Admin</th>
+                <SortableHeader
+                  field="HoVaTen"
+                  currentField={sortBy}
+                  currentDirection={sortDir}
+                  onSort={(f, d) => {
+                    if (d === null) {
+                      setSortBy('NgayTao');
+                      setSortDir('DESC');
+                    } else {
+                      setSortBy(f);
+                      setSortDir(d);
+                    }
+                  }}
+                >
+                  Tài khoản & Người dùng
+                </SortableHeader>
+                <SortableHeader
+                  field="MaVaiTro"
+                  currentField={sortBy}
+                  currentDirection={sortDir}
+                  onSort={(f, d) => {
+                    if (d === null) {
+                      setSortBy('NgayTao');
+                      setSortDir('DESC');
+                    } else {
+                      setSortBy(f);
+                      setSortDir(d);
+                    }
+                  }}
+                >
+                  Phân quyền (Vai trò)
+                </SortableHeader>
+                <SortableHeader
+                  field="TenDangNhap"
+                  currentField={sortBy}
+                  currentDirection={sortDir}
+                  onSort={(f, d) => {
+                    if (d === null) {
+                      setSortBy('NgayTao');
+                      setSortDir('DESC');
+                    } else {
+                      setSortBy(f);
+                      setSortDir(d);
+                    }
+                  }}
+                >
+                  Định danh / Liên hệ
+                </SortableHeader>
+                <th className="py-3.5 px-4 font-bold text-[11px] uppercase tracking-wider">Email</th>
+                <SortableHeader
+                  field="TrangThai"
+                  align="center"
+                  currentField={sortBy}
+                  currentDirection={sortDir}
+                  onSort={(f, d) => {
+                    if (d === null) {
+                      setSortBy('NgayTao');
+                      setSortDir('DESC');
+                    } else {
+                      setSortBy(f);
+                      setSortDir(d);
+                    }
+                  }}
+                >
+                  Trạng thái
+                </SortableHeader>
+                <th className="py-3.5 px-4 text-right font-bold text-[11px] uppercase tracking-wider">Thao tác Admin</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
@@ -723,49 +786,18 @@ export const UserManagement: React.FC = () => {
           </table>
         </div>
 
-        {/* Phân trang */}
-        <div className="p-4 border-t border-slate-200/80 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600">
-          <div className="flex items-center gap-2">
-            <span>Hiển thị</span>
-            <select
-              value={pagination.soBanGhiMoiTrang}
-              onChange={(e) => {
-                setPagination((p) => ({
-                  ...p,
-                  soBanGhiMoiTrang: Number(e.target.value),
-                  trangHienTai: 1,
-                }));
-              }}
-              className="bg-white border border-slate-200 text-slate-800 rounded-lg px-2.5 py-1 text-xs font-semibold focus:outline-none focus:border-amber-400 cursor-pointer"
-            >
-              <option value="10">10 dòng</option>
-              <option value="20">20 dòng</option>
-              <option value="50">50 dòng</option>
-              <option value="-1">Tất cả</option>
-            </select>
-            <span>trên tổng số <strong className="text-slate-900 font-bold">{pagination.tongSoBanGhi}</strong> tài khoản</span>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <button
-              disabled={pagination.trangHienTai <= 1}
-              onClick={() => setPagination((p) => ({ ...p, trangHienTai: p.trangHienTai - 1 }))}
-              className="p-2 rounded-lg border border-slate-200 hover:bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all shadow-xs"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <span className="px-3 py-1 font-bold text-slate-800">
-              Trang {pagination.trangHienTai} / {pagination.tongSoTrang || 1}
-            </span>
-            <button
-              disabled={pagination.trangHienTai >= pagination.tongSoTrang}
-              onClick={() => setPagination((p) => ({ ...p, trangHienTai: p.trangHienTai + 1 }))}
-              className="p-2 rounded-lg border border-slate-200 hover:bg-white text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all shadow-xs"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+        {/* Phân trang chuẩn theo skill/phan_trang.md */}
+        <PaginationFooter
+          currentPage={pagination.trangHienTai}
+          pageSize={pagination.soBanGhiMoiTrang}
+          totalItems={pagination.tongSoBanGhi}
+          onPageChange={(page) => setPagination((prev) => ({ ...prev, trangHienTai: page }))}
+          onPageSizeChange={(size) =>
+            setPagination((prev) => ({ ...prev, soBanGhiMoiTrang: size, trangHienTai: 1 }))
+          }
+          pageSizeOptions={[10, 20, 50, 100, -1]}
+          itemName="tài khoản"
+        />
       </div>
 
       {/* MODAL 1: THÊM / CẬP NHẬT TÀI KHOẢN & PHÂN QUYỀN */}

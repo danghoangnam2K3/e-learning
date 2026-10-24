@@ -1,3 +1,5 @@
+import { PaginationFooter } from './common/PaginationFooter';
+import { SortableHeader } from './common/SortableHeader';
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { ClassItem, CourseItem, UserItem } from '../types';

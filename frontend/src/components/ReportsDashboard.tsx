@@ -1,3 +1,4 @@
+import { PaginationFooter } from './common/PaginationFooter';
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { ReportOverviewItem, CourseItem, ClassItem } from '../types';

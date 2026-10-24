@@ -1,3 +1,5 @@
+import { PaginationFooter } from '../../components/common/PaginationFooter';
+import { useClientPagination } from '../../hooks/useClientPagination';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
@@ -50,6 +52,18 @@ export const StudentMyCoursesPage: React.FC = () => {
       c.maHangGPLX?.toLowerCase().includes(term) ||
       c.tenGiaoVien?.toLowerCase().includes(term)
     );
+  });
+
+  const {
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    paginatedData: paginatedCourses,
+    totalItems: totalCoursesCount,
+  } = useClientPagination({
+    data: filteredCourses,
+    initialPageSize: 10,
   });
 
   return (
@@ -124,7 +138,7 @@ export const StudentMyCoursesPage: React.FC = () => {
       )}
 
       {/* 4. Course Cards Grid */}
-      {!loading && !error && filteredCourses.length === 0 && (
+      {!loading && !error && totalCoursesCount === 0 && (
         <div className="bg-white rounded-3xl p-12 text-center border border-slate-200/80 shadow-sm max-w-lg mx-auto">
           <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center mx-auto mb-4">
             <BookOpen className="w-8 h-8" />
@@ -148,9 +162,10 @@ export const StudentMyCoursesPage: React.FC = () => {
         </div>
       )}
 
-      {!loading && !error && filteredCourses.length > 0 && (
+      {!loading && !error && totalCoursesCount > 0 && (
+        <>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {filteredCourses.map((course) => {
+          {paginatedCourses.map((course) => {
             const isCompleted = course.tiLeHoanThanh >= 100;
 
             return (
@@ -285,6 +300,20 @@ export const StudentMyCoursesPage: React.FC = () => {
             );
           })}
         </div>
+
+        {/* Pagination Footer */}
+        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+          <PaginationFooter
+            currentPage={currentPage}
+            pageSize={pageSize}
+            totalItems={totalCoursesCount}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+            pageSizeOptions={[10, 20, 50, 100, -1]}
+            itemName="khóa học"
+          />
+        </div>
+        </>
       )}
     </div>
   );

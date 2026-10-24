@@ -1,3 +1,5 @@
+import { PaginationFooter } from './common/PaginationFooter';
+import { SortableHeader } from './common/SortableHeader';
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { UserItem, PaginationMeta } from '../types';
@@ -33,6 +35,8 @@ export const TeacherList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'LOCKED'>('ALL');
+  const [sortBy, setSortBy] = useState('NgayTao');
+  const [sortDir, setSortDir] = useState<'ASC' | 'DESC'>('DESC');
   const debouncedSearch = useDebounce(searchTerm, 350);
 
   // Modal xem chi tiết phân công giáo viên (Lớp & Học viên phụ trách)
@@ -70,9 +74,12 @@ export const TeacherList: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const fetchTeachers = async (
-    page: number = 1,
+    page: number = pagination.trangHienTai,
+    pageSize: number = pagination.soBanGhiMoiTrang || 10,
     keyword: string = debouncedSearch,
-    status: 'ALL' | 'ACTIVE' | 'LOCKED' = statusFilter
+    status: 'ALL' | 'ACTIVE' | 'LOCKED' = statusFilter,
+    sortField: string = sortBy,
+    sortDirection: 'ASC' | 'DESC' = sortDir
   ) => {
     setLoading(true);
     try {
@@ -82,7 +89,9 @@ export const TeacherList: React.FC = () => {
         tuKhoa: keyword || undefined,
         trangThai: trangThaiParam,
         trangHienTai: page,
-        soBanGhiMoiTrang: 10,
+        soBanGhiMoiTrang: pageSize,
+        sapXepTheo: sortField,
+        huongSapXep: sortDirection,
       });
       setTeachers(res.danhSach || []);
       setPagination(res.phanTrang);
@@ -94,8 +103,8 @@ export const TeacherList: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchTeachers(1, debouncedSearch, statusFilter);
-  }, [debouncedSearch, statusFilter]);
+    fetchTeachers(1, pagination.soBanGhiMoiTrang, debouncedSearch, statusFilter, sortBy, sortDir);
+  }, [debouncedSearch, statusFilter, sortBy, sortDir]);
 
   // Chuyển đổi trạng thái nhanh (Đang dạy / Tạm nghỉ)
   const handleToggleStatus = async (user: UserItem) => {
@@ -434,30 +443,16 @@ export const TeacherList: React.FC = () => {
           </table>
         </div>
 
-        {/* Pagination Bar */}
-        {pagination.tongSoTrang > 1 && (
-          <div className="p-4 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-slate-500">
-              Trang {pagination.trangHienTai} / {pagination.tongSoTrang}
-            </span>
-            <div className="flex items-center gap-1">
-              <button
-                disabled={pagination.trangHienTai <= 1}
-                onClick={() => fetchTeachers(pagination.trangHienTai - 1)}
-                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 cursor-pointer"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                disabled={pagination.trangHienTai >= pagination.tongSoTrang}
-                onClick={() => fetchTeachers(pagination.trangHienTai + 1)}
-                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 cursor-pointer"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Pagination Bar chuẩn theo skill/phan_trang.md */}
+        <PaginationFooter
+          currentPage={pagination.trangHienTai}
+          pageSize={pagination.soBanGhiMoiTrang}
+          totalItems={pagination.tongSoBanGhi}
+          onPageChange={(page) => fetchTeachers(page, pagination.soBanGhiMoiTrang)}
+          onPageSizeChange={(size) => fetchTeachers(1, size)}
+          pageSizeOptions={[10, 20, 50, 100, -1]}
+          itemName="giáo viên"
+        />
       </div>
 
       {/* ========================================================================= */}

@@ -1,3 +1,6 @@
+import { PaginationFooter } from './common/PaginationFooter';
+import { SortableHeader } from './common/SortableHeader';
+import { useClientPagination } from '../hooks/useClientPagination';
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import { ClassItem, CourseItem, UserItem } from '../types';
@@ -226,6 +229,24 @@ export const CourseList: React.FC<CourseListProps> = ({
     return c.TrangThai === statusFilter;
   });
 
+  // Áp dụng hook phân trang và sắp xếp client-side theo chuẩn skill/phan_trang.md
+  const {
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    sortField,
+    sortDirection,
+    handleSort,
+    paginatedData: paginatedCourses,
+    totalItems: totalCoursesCount,
+  } = useClientPagination({
+    data: filteredCourses,
+    initialPageSize: 10,
+    initialSortField: 'MaLopHocCode',
+    initialSortDirection: 'ASC',
+  });
+
   return (
     <div className="space-y-6">
       {/* 1. Header & Actions */}
@@ -346,7 +367,7 @@ export const CourseList: React.FC<CourseListProps> = ({
       {/* 4. CHẾ ĐỘ HIỂN THỊ DẠNG THẺ LƯỚI (GRID CARDS) */}
       {viewMode === 'grid' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredCourses.length === 0 ? (
+          {totalCoursesCount === 0 ? (
             <div className="col-span-full py-16 text-center text-slate-400 font-medium akkhor-card space-y-3">
               <p>{loading ? 'Đang tải danh sách khóa học thực tế...' : 'Không tìm thấy khóa học nào phù hợp.'}</p>
               <button
@@ -358,7 +379,7 @@ export const CourseList: React.FC<CourseListProps> = ({
               </button>
             </div>
           ) : (
-            filteredCourses.map((c) => (
+            paginatedCourses.map((c) => (
               <div
                 key={c.MaLopHoc}
                 className="akkhor-card p-5 flex flex-col justify-between space-y-4 hover:border-amber-400/60 group transition-all relative"
@@ -466,25 +487,68 @@ export const CourseList: React.FC<CourseListProps> = ({
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
-                  <th className="py-3 px-4">Mã Khóa</th>
-                  <th className="py-3 px-4">Tên Khóa Học</th>
-                  <th className="py-3 px-4">Hạng GPLX</th>
+                  <SortableHeader
+                    field="MaLopHocCode"
+                    currentField={sortField}
+                    currentDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    Mã Khóa
+                  </SortableHeader>
+                  <SortableHeader
+                    field="TenLopHoc"
+                    currentField={sortField}
+                    currentDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    Tên Khóa Học
+                  </SortableHeader>
+                  <SortableHeader
+                    field="MaHangGPLX"
+                    currentField={sortField}
+                    currentDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    Hạng GPLX
+                  </SortableHeader>
                   <th className="py-3 px-4">Khung Bài Giảng Mẫu</th>
-                  <th className="py-3 px-4 text-center">Sĩ Số</th>
-                  <th className="py-3 px-4">Thời Gian Đào Tạo</th>
-                  <th className="py-3 px-4">Trạng Thái</th>
+                  <SortableHeader
+                    field="SiSoHocVien"
+                    align="center"
+                    currentField={sortField}
+                    currentDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    Sĩ Số
+                  </SortableHeader>
+                  <SortableHeader
+                    field="NgayKhaiGiang"
+                    currentField={sortField}
+                    currentDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    Thời Gian Đào Tạo
+                  </SortableHeader>
+                  <SortableHeader
+                    field="TrangThai"
+                    currentField={sortField}
+                    currentDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    Trạng Thái
+                  </SortableHeader>
                   <th className="py-3 px-4 text-right">Thao Tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredCourses.length === 0 ? (
+                {totalCoursesCount === 0 ? (
                   <tr>
                     <td colSpan={8} className="py-12 text-center text-slate-400 font-medium">
                       Không tìm thấy khóa học nào phù hợp.
                     </td>
                   </tr>
                 ) : (
-                  filteredCourses.map((c) => (
+                  paginatedCourses.map((c) => (
                     <tr key={c.MaLopHoc} className="hover:bg-slate-50/80 transition-colors group">
                       <td className="py-3.5 px-4 font-mono font-bold text-slate-700">{c.MaLopHocCode}</td>
                       <td className="py-3.5 px-4">
@@ -551,6 +615,19 @@ export const CourseList: React.FC<CourseListProps> = ({
           </div>
         </div>
       )}
+
+      {/* 6. Phân trang chuyên nghiệp theo skill/phan_trang.md */}
+      <div className="akkhor-card overflow-hidden rounded-2xl">
+        <PaginationFooter
+          currentPage={currentPage}
+          pageSize={pageSize}
+          totalItems={totalCoursesCount}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[10, 20, 50, 100, -1]}
+          itemName="khóa học"
+        />
+      </div>
 
       {/* ========================================================================= */}
       {/* 6. MODAL THÊM MỚI / CHỈNH SỬA KHÓA HỌC */}
