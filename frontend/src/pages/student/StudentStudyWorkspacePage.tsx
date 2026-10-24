@@ -104,19 +104,19 @@ export const StudentStudyWorkspacePage: React.FC = () => {
     };
   }, [isPlaying]);
 
-  // 30-Second Heartbeat to Backend (Strict Business Logic Separation)
+  // 5-Second Heartbeat to Backend (Strict Business Logic Separation)
   useEffect(() => {
     if (!isPlaying || !currentLesson) return;
 
     heartbeatTimerRef.current = setInterval(async () => {
       try {
         setIsHeartbeatSyncing(true);
-        const res: any = await api.heartbeatProgress(currentLesson.maBaiGiang, 30);
+        const res: any = await api.heartbeatProgress(currentLesson.maBaiGiang, 5);
         if (res && res.data) {
           if (res.data.daHoanThanh) {
             setIsCompleted(true);
           }
-          setHeartbeatNotice('Đã lưu tiến độ học tập (+30 giây)');
+          setHeartbeatNotice('Đã lưu tiến độ học tập (+5 giây)');
           setTimeout(() => setHeartbeatNotice(null), 3000);
         }
       } catch (err) {
@@ -124,7 +124,7 @@ export const StudentStudyWorkspacePage: React.FC = () => {
       } finally {
         setIsHeartbeatSyncing(false);
       }
-    }, 30000);
+    }, 5000);
 
     return () => {
       if (heartbeatTimerRef.current) clearInterval(heartbeatTimerRef.current);
@@ -141,7 +141,7 @@ export const StudentStudyWorkspacePage: React.FC = () => {
     if (!currentLesson) return;
     try {
       setIsHeartbeatSyncing(true);
-      const res: any = await api.heartbeatProgress(currentLesson.maBaiGiang, 30);
+      const res: any = await api.heartbeatProgress(currentLesson.maBaiGiang, 5);
       if (res?.data?.daHoanThanh) {
         setIsCompleted(true);
       }
@@ -438,7 +438,7 @@ export const StudentStudyWorkspacePage: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
-                <span>Heartbeat: Tự động ghi nhận thời gian mỗi 30 giây</span>
+                <span>Heartbeat: Tự động ghi nhận thời gian mỗi 5 giây</span>
                 {isCompleted && (
                   <span className="text-emerald-400 font-bold flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5" />

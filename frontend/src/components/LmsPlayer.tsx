@@ -56,7 +56,7 @@ export const LmsPlayer: React.FC<LmsPlayerProps> = ({ user }) => {
     fetchProgress();
   }, []);
 
-  // Heartbeat mechanism - sends progress every 30 seconds when isPlaying is true
+  // Heartbeat mechanism - sends progress every 5 seconds when isPlaying is true
   useEffect(() => {
     if (isPlaying && currentLesson) {
       // 1. Đồng hồ đếm giây thực tế hiển thị
@@ -64,15 +64,15 @@ export const LmsPlayer: React.FC<LmsPlayerProps> = ({ user }) => {
         setSessionSeconds((prev) => prev + 1);
       }, 1000);
 
-      // 2. Gửi Heartbeat lên Backend mỗi 30 giây để cập nhật DB
+      // 2. Gửi Heartbeat lên Backend mỗi 5 giây để cập nhật DB
       heartbeatTimerRef.current = setInterval(async () => {
         try {
-          await api.heartbeatProgress(currentLesson.MaBaiGiang, 30);
+          await api.heartbeatProgress(currentLesson.MaBaiGiang, 5);
           fetchProgress();
         } catch (e) {
           console.error('Lỗi gửi heartbeat:', e);
         }
-      }, 30000);
+      }, 5000);
     } else {
       if (secondTimerRef.current) clearInterval(secondTimerRef.current);
       if (heartbeatTimerRef.current) clearInterval(heartbeatTimerRef.current);
@@ -225,7 +225,7 @@ export const LmsPlayer: React.FC<LmsPlayerProps> = ({ user }) => {
 
                     <div className="text-xs text-slate-300 flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                      <span>Heartbeat đồng bộ mỗi 30s</span>
+                      <span>Heartbeat đồng bộ mỗi 5s</span>
                     </div>
                   </div>
                 </div>

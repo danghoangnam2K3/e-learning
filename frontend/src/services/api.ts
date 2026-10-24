@@ -487,7 +487,7 @@ class ApiService {
     return this.request<StudentProfileResponse>('/lms/student-profile');
   }
 
-  async heartbeatProgress(maBaiGiang: number, thoiGianCongThemGiay: number = 30) {
+  async heartbeatProgress(maBaiGiang: number, thoiGianCongThemGiay: number = 5) {
     return this.request('/lms/heartbeat-progress', {
       method: 'POST',
       body: JSON.stringify({ maBaiGiang, thoiGianCongThemGiay }),
