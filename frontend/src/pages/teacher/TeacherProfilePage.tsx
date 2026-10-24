@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../../services/api';
 import { TeacherAssignmentsData } from '../../types';
+import { useAuth } from '../../context/AuthContext';
 import {
   UserCheck,
   ShieldCheck,
@@ -13,12 +14,20 @@ import {
   CheckCircle2,
   Calendar,
   Users,
+  Camera,
+  Loader2,
 } from 'lucide-react';
 
 export const TeacherProfilePage: React.FC = () => {
+  const { user, updateUser } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [data, setData] = useState<TeacherAssignmentsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Avatar Upload State
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarMsg, setAvatarMsg] = useState<{ text: string; error?: boolean } | null>(null);
 
   // Password Change Form State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -45,6 +54,45 @@ export const TeacherProfilePage: React.FC = () => {
   useEffect(() => {
     loadProfile();
   }, []);
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.match(/\/(jpeg|png|webp|jpg)$/i)) {
+      setAvatarMsg({ text: 'Chỉ chấp nhận ảnh định dạng JPG, PNG hoặc WEBP', error: true });
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setAvatarMsg({ text: 'Dung lượng ảnh tối đa 2MB', error: true });
+      return;
+    }
+
+    setUploadingAvatar(true);
+    setAvatarMsg(null);
+    try {
+      const res = await api.uploadMyAvatar(file);
+      updateUser({ avatarUrl: res.avatarUrl });
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              thongTinGiaoVien: {
+                ...prev.thongTinGiaoVien,
+                AvatarUrl: res.avatarUrl,
+              },
+            }
+          : prev,
+      );
+      setAvatarMsg({ text: 'Cập nhật ảnh đại diện giáo viên thành công!' });
+      setTimeout(() => setAvatarMsg(null), 3500);
+    } catch (err: any) {
+      setAvatarMsg({ text: err.message || 'Lỗi khi tải ảnh lên máy chủ', error: true });
+    } finally {
+      setUploadingAvatar(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,9 +163,43 @@ export const TeacherProfilePage: React.FC = () => {
       <div className="bg-gradient-to-r from-[#0c1322] via-[#162035] to-[#1e293b] rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-xl border border-slate-700/50">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 font-black text-2xl flex items-center justify-center shadow-lg shadow-amber-400/20 shrink-0">
-              {thongTinGiaoVien.HoVaTen ? thongTinGiaoVien.HoVaTen.charAt(0).toUpperCase() : 'G'}
+            {/* Clickable Avatar with Camera Overlay */}
+            <div
+              className="relative group cursor-pointer shrink-0"
+              onClick={() => fileInputRef.current?.click()}
+              title="Bấm để đổi ảnh đại diện giáo viên"
+            >
+              {(user?.avatarUrl || thongTinGiaoVien.AvatarUrl) ? (
+                <img
+                  src={user?.avatarUrl || thongTinGiaoVien.AvatarUrl}
+                  alt={thongTinGiaoVien.HoVaTen}
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl object-cover border-2 border-amber-400 shadow-lg shadow-amber-400/20 transition-all group-hover:brightness-75"
+                />
+              ) : (
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 font-black text-2xl flex items-center justify-center shadow-lg shadow-amber-400/20 transition-all group-hover:brightness-75">
+                  {thongTinGiaoVien.HoVaTen ? thongTinGiaoVien.HoVaTen.charAt(0).toUpperCase() : 'G'}
+                </div>
+              )}
+              <div className="absolute inset-0 rounded-3xl flex flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
+                {uploadingAvatar ? (
+                  <Loader2 className="w-6 h-6 animate-spin text-amber-400" />
+                ) : (
+                  <>
+                    <Camera className="w-5 h-5 text-amber-300" />
+                    <span className="text-[10px] font-bold mt-1">Đổi ảnh</span>
+                  </>
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handleAvatarChange}
+                disabled={uploadingAvatar}
+              />
             </div>
+
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[10px] font-bold border border-amber-400/30 uppercase">
@@ -131,9 +213,24 @@ export const TeacherProfilePage: React.FC = () => {
               <h1 className="text-2xl sm:text-3xl font-heading font-black text-white">
                 {thongTinGiaoVien.HoVaTen}
               </h1>
-              <span className="text-xs text-slate-400 font-medium">
-                Tài khoản đăng nhập: <strong>{thongTinGiaoVien.TenDangNhap}</strong>
-              </span>
+              <div className="flex flex-wrap items-center gap-2.5 mt-1.5">
+                <span className="text-xs text-slate-300 font-medium">
+                  Tài khoản: <strong>{thongTinGiaoVien.TenDangNhap}</strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold transition-all shadow-md shadow-amber-400/20 cursor-pointer disabled:opacity-50"
+                >
+                  {uploadingAvatar ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Camera className="w-3.5 h-3.5" />
+                  )}
+                  <span>{uploadingAvatar ? 'Đang tải lên...' : 'Đổi ảnh đại diện'}</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -145,6 +242,23 @@ export const TeacherProfilePage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {avatarMsg && (
+        <div
+          className={`p-3.5 rounded-2xl text-xs flex items-center gap-2.5 ${
+            avatarMsg.error
+              ? 'bg-rose-50 text-rose-800 border border-rose-200'
+              : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+          }`}
+        >
+          {avatarMsg.error ? (
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+          ) : (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          )}
+          <span className="font-medium">{avatarMsg.text}</span>
+        </div>
+      )}
 
       {/* 2. Official Notice Banner */}
       <div className="p-4 sm:p-5 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-start gap-3.5 text-amber-900 shadow-sm">

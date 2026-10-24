@@ -243,6 +243,7 @@ export interface StudentProfileResponse {
     soCCCD: string;
     soDienThoai: string;
     email: string;
+    avatarUrl?: string | null;
     ngayTao: string;
     trangThai: boolean;
   };

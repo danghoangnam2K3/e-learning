@@ -350,7 +350,7 @@ export class LmsService {
   // 6. Lấy hồ sơ cá nhân của học viên (Read-Only)
   async getStudentProfile(studentId: number) {
     const userRows = await this.dataSource.query(
-      `SELECT MaNguoiDung, HoVaTen, TenDangNhap, SoCCCD, SoDienThoai, Email, NgayTao, TrangThai
+      `SELECT MaNguoiDung, HoVaTen, TenDangNhap, SoCCCD, SoDienThoai, Email, AvatarUrl, NgayTao, TrangThai
        FROM dbo.NguoiDung 
        WHERE MaNguoiDung = @0 AND DaXoa = 0`,
       [studentId],
@@ -391,6 +391,7 @@ export class LmsService {
         soCCCD: user.SoCCCD || 'Chưa cập nhật',
         soDienThoai: user.SoDienThoai || 'Chưa cập nhật',
         email: user.Email || 'Chưa cập nhật',
+        avatarUrl: user.AvatarUrl || null,
         ngayTao: user.NgayTao,
         trangThai: user.TrangThai,
       },

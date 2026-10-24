@@ -26,10 +26,11 @@ interface AccountInfoModalProps {
 export const AccountInfoModal: React.FC<AccountInfoModalProps> = ({
   isOpen,
   onClose,
-  user,
+  user: propUser,
   onOpenChangePassword,
 }) => {
-  const { updateUser } = useAuth();
+  const { user: authUser, updateUser } = useAuth();
+  const user = authUser || propUser;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [msg, setMsg] = useState<{ text: string; error?: boolean } | null>(null);
@@ -123,10 +124,21 @@ export const AccountInfoModal: React.FC<AccountInfoModalProps> = ({
               <ShieldCheck className="w-3 h-3" />
               <span>{user.tenVaiTro || user.maVaiTro}</span>
             </div>
-            <p className="text-[11px] text-slate-500 mt-1 cursor-pointer hover:text-amber-600 flex items-center gap-1" onClick={() => fileInputRef.current?.click()}>
-              <Camera className="w-3 h-3" />
-              <span>Bấm vào ảnh để tải ảnh mới</span>
-            </p>
+            <div className="mt-2 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition-colors shadow-sm cursor-pointer disabled:opacity-50"
+              >
+                {uploading ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Camera className="w-3.5 h-3.5" />
+                )}
+                <span>{uploading ? 'Đang tải lên...' : 'Đổi ảnh đại diện'}</span>
+              </button>
+            </div>
           </div>
         </div>
 
