@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core';
+﻿import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -14,10 +14,10 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // Kích hoạt nén HTTP Payload (Gzip/Deflate) tối ưu tốc độ mạng và giảm độ trễ
+  // KÃ­ch hoáº¡t nÃ©n HTTP Payload (Gzip/Deflate) tá»‘i Æ°u tá»‘c Ä‘á»™ máº¡ng vÃ  giáº£m Ä‘á»™ trá»…
   app.use(compression());
 
-  // Cấu hình phục vụ tệp tĩnh (Static Assets) cho uploads / avatars theo quy trình lưu ảnh
+  // Cáº¥u hÃ¬nh phá»¥c vá»¥ tá»‡p tÄ©nh (Static Assets) cho uploads / avatars theo quy trÃ¬nh lÆ°u áº£nh
   const uploadsDir = join(process.cwd(), 'uploads');
   const avatarsDir = join(uploadsDir, 'avatars');
   if (!fs.existsSync(avatarsDir)) {
@@ -29,18 +29,18 @@ async function bootstrap() {
   const port = configService.get<number>('PORT', 3000);
   const apiPrefix = configService.get<string>('API_PREFIX', 'api/v1');
 
-  // 1. Cấu hình tiền tố toàn cục (Global Prefix)
+  // 1. Cáº¥u hÃ¬nh tiá»n tá»‘ toÃ n cá»¥c (Global Prefix)
   app.setGlobalPrefix(apiPrefix);
 
-  // 2. Cấu hình CORS
+  // 2. Cáº¥u hÃ¬nh CORS
   const corsOrigin = configService.get<string>('CORS_ORIGIN', '*');
   app.enableCors({
-    origin: corsOrigin.includes(',') ? corsOrigin.split(',') : corsOrigin,
+    origin: corsOrigin === '*' ? true : (corsOrigin.includes(',') ? corsOrigin.split(',') : corsOrigin),
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
 
-  // 3. Cấu hình ValidationPipe toàn cục
+  // 3. Cáº¥u hÃ¬nh ValidationPipe toÃ n cá»¥c
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -52,17 +52,17 @@ async function bootstrap() {
     }),
   );
 
-  // 4. Cấu hình Exception Filter bắt lỗi Stored Procedure & HTTP
+  // 4. Cáº¥u hÃ¬nh Exception Filter báº¯t lá»—i Stored Procedure & HTTP
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  // 5. Cấu hình Response Interceptor chuẩn hóa format
+  // 5. Cáº¥u hÃ¬nh Response Interceptor chuáº©n hÃ³a format
   app.useGlobalInterceptors(new ResponseInterceptor());
 
-  // 6. Cấu hình Swagger OpenAPI Documentation
+  // 6. Cáº¥u hÃ¬nh Swagger OpenAPI Documentation
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('HỆ THỐNG QUẢN LÝ ĐÀO TẠO LÁI XE & E-LEARNING (LMS)')
+    .setTitle('Há»† THá»NG QUáº¢N LÃ ÄÃ€O Táº O LÃI XE & E-LEARNING (LMS)')
     .setDescription(
-      'Tài liệu đặc tả toàn bộ RESTful API Backend cho 7 Modules theo Clean Architecture và 100% Stored Procedures trong MS SQL Server 2019.',
+      'TÃ i liá»‡u Ä‘áº·c táº£ toÃ n bá»™ RESTful API Backend cho 7 Modules theo Clean Architecture vÃ  100% Stored Procedures trong MS SQL Server 2019.',
     )
     .setVersion('1.0')
     .addBearerAuth(
@@ -71,7 +71,7 @@ async function bootstrap() {
         scheme: 'bearer',
         bearerFormat: 'JWT',
         name: 'JWT',
-        description: 'Nhập JWT Token xác thực',
+        description: 'Nháº­p JWT Token xÃ¡c thá»±c',
         in: 'header',
       },
       'JWT-auth',
@@ -80,16 +80,17 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/docs', app, document, {
-    customSiteTitle: 'LMS Lái Xe - API Documentation',
+    customSiteTitle: 'LMS LÃ¡i Xe - API Documentation',
   });
 
-  // 7. Khởi chạy Server
+  // 7. Khá»Ÿi cháº¡y Server
   await app.listen(port);
   logger.log(`========================================================`);
-  logger.log(`🚀 Hệ thống Backend LMS Đào tạo Lái xe đang chạy tại:`);
-  logger.log(`👉 API Server Base URL : http://localhost:${port}/${apiPrefix}`);
-  logger.log(`👉 Swagger Docs URL    : http://localhost:${port}/api/docs`);
+  logger.log(`ðŸš€ Há»‡ thá»‘ng Backend LMS ÄÃ o táº¡o LÃ¡i xe Ä‘ang cháº¡y táº¡i:`);
+  logger.log(`ðŸ‘‰ API Server Base URL : http://localhost:${port}/${apiPrefix}`);
+  logger.log(`ðŸ‘‰ Swagger Docs URL    : http://localhost:${port}/api/docs`);
   logger.log(`========================================================`);
 }
 
 bootstrap();
+
