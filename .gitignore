@@ -1,0 +1,123 @@
+﻿# ==========================================
+# 1. BẢO MẬT & THÔNG TIN NHẠY CẢM (CRITICAL)
+# ==========================================
+# File biến môi trường chứa API Key, DB Password, JWT Secret, Token...
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+# Giữ lại file mẫu hướng dẫn cấu hình
+!.env.example
+!.env.template
+
+# Khóa riêng tư, Chứng chỉ bảo mật, Token
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+*.jks
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+credentials.json
+service-account*.json
+firebase-adminsdk*.json
+client_secret*.json
+secrets/
+private/
+
+# ==========================================
+# 2. THƯ VIỆN & PHỤ THUỘC (DEPENDENCIES)
+# ==========================================
+node_modules/
+*/node_modules/
+package-lock.json.bak
+yarn.lock.bak
+pnpm-lock.yaml.bak
+
+# ==========================================
+# 3. BUILD OUTPUTS & ARTIFACTS
+# ==========================================
+dist/
+*/dist/
+build/
+*/build/
+out/
+dist-ssr/
+.cache/
+.parcel-cache/
+.turbo/
+*.tsbuildinfo
+
+# ==========================================
+# 4. FILE TẢI LÊN CỦA NGƯỜI DÙNG & TỆP TẠM
+# ==========================================
+uploads/
+*/uploads/
+storage/
+temp/
+tmp/
+*.tmp
+*.temp
+
+# ==========================================
+# 5. CƠ SỞ DỮ LIỆU & DUMP DATA NHẠY CẢM
+# ==========================================
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.dump
+*.sql.gz
+*.sql.tar.gz
+
+# ==========================================
+# 6. LOGS & GỠ LỖI
+# ==========================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ==========================================
+# 7. IDE, EDITOR & HỆ ĐIỀU HÀNH
+# ==========================================
+# Hệ điều hành Windows / Mac / Linux
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# VS Code / JetBrains / Editors
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ==========================================
+# 8. SCRATCH SCRIPTS KIỂM THỬ NỘI BỘ
+# ==========================================
+scratch_*.js
+scratch_*.ts
+test_scratch*
