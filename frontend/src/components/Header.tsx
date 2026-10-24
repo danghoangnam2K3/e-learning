@@ -5,14 +5,10 @@ import { AuthUser } from '../types';
 import {
   Menu,
   Search,
-  Bell,
-  Mail,
   User,
   KeyRound,
   LogOut,
   ShieldCheck,
-  CheckCircle2,
-  Calendar,
   AlertCircle,
 } from 'lucide-react';
 
@@ -42,24 +38,14 @@ export const Header: React.FC<HeaderProps> = (props) => {
   const onSearchChange = props.onSearchChange;
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isNotifOpen, setIsNotifOpen] = useState(false);
-  const [isMsgOpen, setIsMsgOpen] = useState(false);
 
   const profileRef = useRef<HTMLDivElement>(null);
-  const notifRef = useRef<HTMLDivElement>(null);
-  const msgRef = useRef<HTMLDivElement>(null);
 
   // Đóng dropdown khi click ra ngoài
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
         setIsProfileOpen(false);
-      }
-      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
-        setIsNotifOpen(false);
-      }
-      if (msgRef.current && !msgRef.current.contains(e.target as Node)) {
-        setIsMsgOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -93,102 +79,8 @@ export const Header: React.FC<HeaderProps> = (props) => {
 
       {/* 2. Right: Action Bar (Messages, Notifications, User Profile) */}
       <div className="flex items-center gap-3">
-        {/* Messages Dropdown */}
-        <div className="relative" ref={msgRef}>
-          <button
-            onClick={() => setIsMsgOpen(!isMsgOpen)}
-            className="relative p-2.5 rounded-full hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer"
-            title="Tin nhắn hệ thống"
-          >
-            <Mail className="w-5 h-5" />
-            <span className="absolute top-1 right-1 w-4 h-4 bg-emerald-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-              3
-            </span>
-          </button>
-
-          {isMsgOpen && (
-            <div className="absolute right-0 mt-3 w-80 bg-white border border-slate-200 rounded-2xl shadow-xl py-3 z-50 text-xs">
-              <div className="px-4 py-2 border-b border-slate-100 font-bold text-slate-800 flex items-center justify-between">
-                <span>Tin nhắn mới</span>
-                <span className="text-[10px] px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full font-semibold">
-                  3 chưa đọc
-                </span>
-              </div>
-              <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto">
-                <div className="p-3 hover:bg-slate-50 transition-colors cursor-pointer flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0">
-                    GV
-                  </div>
-                  <div>
-                    <div className="font-semibold text-slate-800">Thầy Nguyễn Văn A</div>
-                    <p className="text-[11px] text-slate-500 line-clamp-1">Đã hoàn thành phân công lớp B2-K24</p>
-                    <span className="text-[10px] text-slate-400">10 phút trước</span>
-                  </div>
-                </div>
-                <div className="p-3 hover:bg-slate-50 transition-colors cursor-pointer flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-xs shrink-0">
-                    HV
-                  </div>
-                  <div>
-                    <div className="font-semibold text-slate-800">Lê Quang C</div>
-                    <p className="text-[11px] text-slate-500 line-clamp-1">Yêu cầu mở lại bài giảng số 3</p>
-                    <span className="text-[10px] text-slate-400">1 giờ trước</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Notifications Dropdown */}
-        <div className="relative" ref={notifRef}>
-          <button
-            onClick={() => setIsNotifOpen(!isNotifOpen)}
-            className="relative p-2.5 rounded-full hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer"
-            title="Thông báo"
-          >
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-              2
-            </span>
-          </button>
-
-          {isNotifOpen && (
-            <div className="absolute right-0 mt-3 w-80 bg-white border border-slate-200 rounded-2xl shadow-xl py-3 z-50 text-xs">
-              <div className="px-4 py-2 border-b border-slate-100 font-bold text-slate-800 flex items-center justify-between">
-                <span>Thông báo đào tạo</span>
-                <span className="text-[10px] px-2 py-0.5 bg-rose-100 text-rose-700 rounded-full font-semibold">
-                  Mới
-                </span>
-              </div>
-              <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto">
-                <div className="p-3 hover:bg-slate-50 transition-colors cursor-pointer flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
-                    <Calendar className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-slate-800">Hạn nộp Báo cáo 1 Sở GTVT</div>
-                    <p className="text-[11px] text-slate-500">Khóa B2-2026/01 cần nộp trước ngày 28/10</p>
-                    <span className="text-[10px] text-rose-500 font-medium">Quan trọng</span>
-                  </div>
-                </div>
-                <div className="p-3 hover:bg-slate-50 transition-colors cursor-pointer flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="font-semibold text-slate-800">Tự động bóc tách XML</div>
-                    <p className="text-[11px] text-slate-500">Đã nạp thành công danh sách 150 học viên</p>
-                    <span className="text-[10px] text-slate-400">2 giờ trước</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
         {/* User Profile Dropdown (Akkhor Style) */}
-        <div className="relative pl-2 border-l border-slate-200" ref={profileRef}>
+        <div className="relative" ref={profileRef}>
           <button
             onClick={() => setIsProfileOpen(!isProfileOpen)}
             className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer text-left"
