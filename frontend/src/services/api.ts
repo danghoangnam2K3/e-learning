@@ -1,4 +1,4 @@
-import {
+﻿import {
   AuthUser,
   UserItem,
   PaginationMeta,
@@ -18,7 +18,7 @@ import {
 } from '../types';
 import { clientCache } from './cache';
 
-const BASE_URL = '/api/v1';
+const BASE_URL = (import.meta.env.VITE_API_URL as string) || '/api/v1';
 
 class ApiService {
   private token: string | null = null;
@@ -33,7 +33,7 @@ class ApiService {
       sessionStorage.setItem('lms_token', token);
     } else {
       sessionStorage.removeItem('lms_token');
-      clientCache.invalidate(); // Xóa sạch cache khi đăng xuất
+      clientCache.invalidate(); // XÃ³a sáº¡ch cache khi Ä‘Äƒng xuáº¥t
     }
   }
 
@@ -66,7 +66,7 @@ class ApiService {
     const json = await response.json();
 
     if (!response.ok || json.success === false) {
-      const errorMsg = json.message || 'Yêu cầu không thành công.';
+      const errorMsg = json.message || 'YÃªu cáº§u khÃ´ng thÃ nh cÃ´ng.';
       throw new Error(errorMsg);
     }
 
@@ -177,7 +177,7 @@ class ApiService {
       if (cached) return cached;
     }
     const data = await this.request<CourseItem[]>('/courses');
-    clientCache.set(cacheKey, data, 300); // Lưu cache 5 phút
+    clientCache.set(cacheKey, data, 300); // LÆ°u cache 5 phÃºt
     return data;
   }
 
@@ -197,7 +197,7 @@ class ApiService {
       if (cached) return cached;
     }
     const data = await this.request<LessonItem[]>(`/courses/${courseId}/lessons`);
-    clientCache.set(cacheKey, data, 300); // Lưu cache 5 phút
+    clientCache.set(cacheKey, data, 300); // LÆ°u cache 5 phÃºt
     return data;
   }
 
@@ -235,7 +235,7 @@ class ApiService {
     return res;
   }
 
-  // --- QUẢN TRỊ BÀI GIẢNG & CHƯƠNG THEO KHÓA (THEO YÊU CẦU MỚI) ---
+  // --- QUáº¢N TRá»Š BÃ€I GIáº¢NG & CHÆ¯Æ NG THEO KHÃ“A (THEO YÃŠU Cáº¦U Má»šI) ---
   async getCurriculumSummary(forceRefresh: boolean = false): Promise<CurriculumSummaryItem[]> {
     const cacheKey = 'cache:curriculum:summary';
     if (!forceRefresh) {
@@ -324,7 +324,7 @@ class ApiService {
       if (cached) return cached;
     }
     const data = await this.request<ClassItem[]>('/classes');
-    clientCache.set(cacheKey, data, 180); // Lưu cache 3 phút
+    clientCache.set(cacheKey, data, 180); // LÆ°u cache 3 phÃºt
     return data;
   }
 
@@ -520,3 +520,4 @@ class ApiService {
 }
 
 export const api = new ApiService();
+
